@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.testcontainers.utility.TestcontainersConfiguration;
+import com.jugbaq.cfp.TestcontainersConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,7 +35,7 @@ class UserRepositoryTest {
         user.setPasswordHash("$2a$10$fakehash");
         userRepository.save(user);
 
-        var found = userRepository.findByEmail("speaker@jugbaq.dev");
+        var found = userRepository.findByEmailIgnoreCase("speaker@jugbaq.dev");
         assertThat(found).isPresent();
         assertThat(found.get().getFullName()).isEqualTo("Geovanny Mendoza");
         assertThat(found.get().getId()).isNotNull();
@@ -45,8 +45,8 @@ class UserRepositoryTest {
     void should_find_user_by_email_case_insensitive() {
         userRepository.save(new User("Test@JugBaq.Dev", "Test User"));
 
-        assertThat(userRepository.findByEmail("test@jugbaq.dev")).isPresent();
-        assertThat(userRepository.findByEmail("TEST@JUGBAQ.DEV")).isPresent();
+        assertThat(userRepository.findByEmailIgnoreCase("test@jugbaq.dev")).isPresent();
+        assertThat(userRepository.findByEmailIgnoreCase("TEST@JUGBAQ.DEV")).isPresent();
     }
 
     @Test
@@ -56,7 +56,7 @@ class UserRepositoryTest {
         user.assignRole(jugbaq, TenantRole.ORGANIZER);
         userRepository.save(user);
 
-        User found = userRepository.findByEmail("admin@jugbaq.dev").orElseThrow();
+        User found = userRepository.findByEmailIgnoreCase("admin@jugbaq.dev").orElseThrow();
         assertThat(found.getTenantRoles()).hasSize(2);
         assertThat(found.hasRole(jugbaq.getId(), TenantRole.ADMIN)).isTrue();
         assertThat(found.hasRole(jugbaq.getId(), TenantRole.SPEAKER)).isFalse();
@@ -83,13 +83,13 @@ class UserRepositoryTest {
         user.getSpeakerProfile().setCompany("JUGBAQ");
         userRepository.save(user);
 
-        User found = userRepository.findByEmail("speaker2@jugbaq.dev").orElseThrow();
+        User found = userRepository.findByEmailIgnoreCase("speaker2@jugbaq.dev").orElseThrow();
         assertThat(found.getSpeakerProfile()).isNotNull();
         assertThat(found.getSpeakerProfile().getCity()).isEqualTo("Barranquilla");
     }
 
     @Test
     void should_return_false_when_email_not_exists() {
-        assertThat(userRepository.existsByEmail("noexiste@test.com")).isFalse();
+        assertThat(userRepository.existsByEmailIgnoreCase("noexiste@test.com")).isFalse();
     }
 }
