@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: cfp-postgres
+    environment:
+      POSTGRES_DB: callforpapers
+      POSTGRES_USER: cfp
+      POSTGRES_PASSWORD: cfp_dev_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - cfp_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cfp -d callforpapers"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: cfp-mailhog
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI
+
+volumes:
+  cfp_pgdata:
