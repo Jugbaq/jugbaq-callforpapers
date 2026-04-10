@@ -51,12 +51,13 @@ class UserRepositoryTest {
 
     @Test
     void should_assign_role_to_user_in_tenant() {
-        User user = new User("admin@jugbaq.dev", "Admin User");
+        // Usamos un correo diferente para no chocar con el admin seedeado por Flyway
+        User user = new User("test_admin@jugbaq.dev", "Admin User Test");
         user.assignRole(jugbaq, TenantRole.ADMIN);
         user.assignRole(jugbaq, TenantRole.ORGANIZER);
         userRepository.save(user);
 
-        User found = userRepository.findByEmailIgnoreCase("admin@jugbaq.dev").orElseThrow();
+        User found = userRepository.findByEmailIgnoreCase("test_admin@jugbaq.dev").orElseThrow();
         assertThat(found.getTenantRoles()).hasSize(2);
         assertThat(found.hasRole(jugbaq.getId(), TenantRole.ADMIN)).isTrue();
         assertThat(found.hasRole(jugbaq.getId(), TenantRole.SPEAKER)).isFalse();

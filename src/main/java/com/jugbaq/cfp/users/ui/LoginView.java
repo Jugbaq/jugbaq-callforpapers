@@ -1,4 +1,4 @@
-package com.jugbaq.cfp.shared.config;
+package com.jugbaq.cfp.users.ui;
 
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
