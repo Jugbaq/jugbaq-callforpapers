@@ -1,9 +1,6 @@
-package com.jugbaq.cfp.shared.security;
+package com.jugbaq.cfp.users.security;
 
-import com.jugbaq.cfp.shared.config.LoginView;
-import com.jugbaq.cfp.users.security.CfpOAuth2SuccessHandler;
-import com.jugbaq.cfp.users.security.CfpOAuth2UserService;
-import com.jugbaq.cfp.users.security.CfpUserDetailsService;
+import com.jugbaq.cfp.users.ui.LoginView;
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

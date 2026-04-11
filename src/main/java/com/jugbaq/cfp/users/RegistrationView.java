@@ -29,9 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @AnonymousAllowed
 public class RegistrationView extends VerticalLayout {
 
-    public RegistrationView(UserRepository userRepository,
-                            TenantRepository tenantRepository,
-                            PasswordEncoder passwordEncoder) {
+    public RegistrationView(UserRegistrationService userRegistrationService) {
 
         setSizeFull();
         setAlignItems(FlexComponent.Alignment.CENTER);
@@ -78,7 +76,7 @@ public class RegistrationView extends VerticalLayout {
         binder.forField(emailField)
                 .asRequired("El email es obligatorio")
                 .withValidator(new EmailValidator("Email inválido"))
-                .withValidator(email -> !userRepository.existsByEmailIgnoreCase(email),
+                .withValidator(email -> !userRegistrationService.emailExists(email),
                         "Ya existe una cuenta con este email")
                 .bind(RegistrationData::getEmail, RegistrationData::setEmail);
 
@@ -98,17 +96,7 @@ public class RegistrationView extends VerticalLayout {
             try {
                 binder.writeBean(data);
 
-                User user = new User(data.getEmail(), data.getFullName());
-                user.setPasswordHash(passwordEncoder.encode(data.getPassword()));
-                user.setEmailVerified(false);
-                user.initSpeakerProfile();
-
-                // Asignar SPEAKER a JUGBAQ por defecto
-                tenantRepository.findBySlug("jugbaq").ifPresent(tenant ->
-                        user.assignRole(tenant, TenantRole.SPEAKER)
-                );
-
-                userRepository.save(user);
+                userRegistrationService.registerSpeaker(data.getEmail(), data.getFullName(), data.getPassword());
 
                 Notification.show(
                         "¡Registro exitoso! Ya puedes iniciar sesión.",
@@ -124,7 +112,15 @@ public class RegistrationView extends VerticalLayout {
                         3000,
                         Notification.Position.TOP_CENTER
                 ).addThemeVariants(NotificationVariant.LUMO_ERROR);
-            }
+            } catch (Exception e) {
+            // Catch genérico por si falla algo en la base de datos durante el guardado
+            Notification.show(
+                    "Error al registrar el usuario. Inténtalo de nuevo.",
+                    4000,
+                    Notification.Position.TOP_CENTER
+            ).addThemeVariants(NotificationVariant.LUMO_ERROR);
+            e.printStackTrace(); // En producción, deberías usar un logger aquí
+        }
         });
 
         add(title, fullNameField, emailField, passwordField, confirmPasswordField,

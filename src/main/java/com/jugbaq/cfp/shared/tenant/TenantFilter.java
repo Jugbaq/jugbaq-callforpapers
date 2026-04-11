@@ -41,18 +41,38 @@ public class TenantFilter implements Filter {
             Matcher matcher = TENANT_PATH_PATTERN.matcher(path);
             if (matcher.matches()) {
                 String slug = matcher.group(1);
-                tenantRepository.findBySlug(slug).ifPresentOrElse(
-                        tenant -> {
-                            TenantContext.set(tenant.getId(), tenant.getSlug());
-                            log.debug("Tenant resolved: {} ({})", tenant.getName(), slug);
-                        },
-                        () -> log.warn("Unknown tenant slug: {}", slug)
-                );
+                resolveTenantBySlug(slug);
+            } else {
+                restoreTenantFromSession(httpReq);
             }
 
             chain.doFilter(request, response);
         } finally {
             TenantContext.clear();
+        }
+    }
+
+    private void resolveTenantBySlug(String slug) {
+        tenantRepository.findBySlug(slug).ifPresentOrElse(
+                tenant -> {
+                    TenantContext.set(tenant.getId(), tenant.getSlug());
+                    log.debug("Tenant resolved from URL: {} ({})", tenant.getName(), slug);
+                },
+                () -> log.warn("Unknown tenant slug: {}", slug)
+        );
+    }
+
+    private void restoreTenantFromSession(HttpServletRequest request) {
+        var session = request.getSession(false);
+        if (session == null) {
+            return;
+        }
+        String slug = (String) session.getAttribute("cfp_tenant_slug");
+        if (slug != null) {
+            tenantRepository.findBySlug(slug).ifPresent(tenant -> {
+                TenantContext.set(tenant.getId(), tenant.getSlug());
+                log.debug("Tenant restored from session: {} ({})", tenant.getName(), slug);
+            });
         }
     }
 }
