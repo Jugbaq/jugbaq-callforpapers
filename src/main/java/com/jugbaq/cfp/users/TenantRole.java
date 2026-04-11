@@ -1,4 +1,4 @@
-package com.jugbaq.cfp.users.domain;
+package com.jugbaq.cfp.users;
 
 public enum TenantRole {
     SPEAKER,

@@ -1,6 +1,6 @@
 package com.jugbaq.cfp.users.security;
 
-import com.jugbaq.cfp.users.domain.TenantRole;
+import com.jugbaq.cfp.users.TenantRole;
 import com.jugbaq.cfp.users.domain.User;
 import com.jugbaq.cfp.users.domain.UserRepository;
 import com.jugbaq.cfp.users.domain.UserStatus;

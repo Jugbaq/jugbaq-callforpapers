@@ -172,6 +172,7 @@ CREATE TABLE reviews (
                          comment       TEXT,
                          created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
                          updated_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+                         tenant_id UUID NOT NULL REFERENCES tenants(id),
                          UNIQUE (submission_id, reviewer_id)
 );
 
@@ -180,7 +181,8 @@ CREATE TABLE review_discussions (
                                     submission_id UUID NOT NULL REFERENCES submissions(id) ON DELETE CASCADE,
                                     author_id     UUID NOT NULL REFERENCES users(id),
                                     message       TEXT NOT NULL,
-                                    created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+                                    created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+                                    updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE INDEX idx_review_discussions_submission ON review_discussions(submission_id);
@@ -195,7 +197,9 @@ CREATE TABLE agenda_slots (
                               track_id       UUID REFERENCES event_tracks(id),
                               starts_at      TIMESTAMPTZ NOT NULL,
                               ends_at        TIMESTAMPTZ NOT NULL,
-                              title_override VARCHAR(200)
+                              title_override VARCHAR(200),
+                              created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+                              updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE INDEX idx_agenda_slots_event ON agenda_slots(event_id, starts_at);
@@ -210,7 +214,8 @@ CREATE TABLE notifications (
                                type       VARCHAR(50) NOT NULL,
                                payload    JSONB NOT NULL DEFAULT '{}'::jsonb,
                                read_at    TIMESTAMPTZ,
-                               created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+                               created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+                               updated_at TIMESTAMPTZ
 );
 
 CREATE INDEX idx_notifications_user_unread ON notifications(user_id) WHERE read_at IS NULL;

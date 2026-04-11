@@ -9,7 +9,7 @@ INSERT INTO users (id, email, password_hash, full_name, email_verified, status)
 VALUES (
            'a0000000-0000-0000-0000-000000000001',
            'admin@jugbaq.dev',
-           '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+           '$2a$12$NmyPVGpWLdH6FFZNG0rkHO1n30JPaYBTe4rb9Q6k5jkD4tEHAIeFu',
            'Admin JUGBAQ',
            true,
            'ACTIVE'

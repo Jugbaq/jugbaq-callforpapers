@@ -2,6 +2,7 @@ package com.jugbaq.cfp.users.domain;
 
 import com.jugbaq.cfp.shared.domain.BaseEntity;
 import com.jugbaq.cfp.shared.domain.Tenant;
+import com.jugbaq.cfp.users.TenantRole;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

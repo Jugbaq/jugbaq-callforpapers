@@ -2,7 +2,7 @@ package com.jugbaq.cfp.users.security;
 
 import com.jugbaq.cfp.shared.domain.TenantRepository;
 import com.jugbaq.cfp.shared.tenant.TenantContext;
-import com.jugbaq.cfp.users.domain.TenantRole;
+import com.jugbaq.cfp.users.TenantRole;
 import com.jugbaq.cfp.users.domain.User;
 import com.jugbaq.cfp.users.domain.UserRepository;
 import org.slf4j.Logger;
@@ -13,9 +13,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class CfpOAuth2UserService extends DefaultOAuth2UserService {
