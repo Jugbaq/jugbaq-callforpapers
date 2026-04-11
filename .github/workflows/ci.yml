@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -19,8 +21,13 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build and test
-        run: ./mvnw --batch-mode verify
+      - name: Build, Test, and Analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Esto viene por defecto en GitHub
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    # SI lo necesitas para enviar el reporte de cobertura
+          # El comando 'verify' corre los tests (y JaCoCo genera el reporte).
+          # Luego llama al plugin de Sonar para enviar ese reporte a SonarCloud.
+        run: ./mvnw --batch-mode verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=jugbaq_jugbaq-callforpapers -Dsonar.organization=jugbaq
 
       - name: Upload test reports
         if: failure()
