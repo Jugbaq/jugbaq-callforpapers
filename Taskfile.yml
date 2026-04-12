@@ -1,0 +1,57 @@
+version: '3'
+
+vars:
+  # Detecta si es Windows para usar mvnw.cmd, sino ./mvnw
+  MVNW: '{{if eq .OS "windows"}}mvnw.cmd{{else}}./mvnw{{end}}'
+
+  # Si tienes archivos de Docker Compose, ajusta estas rutas a tu proyecto
+  DC_FILE: "docker-compose.yml"
+
+tasks:
+  default:
+    desc: "Aplica formato y corre los tests"
+    cmds:
+      - task: test
+
+  format:
+    desc: "Aplica formato de código y elimina imports sin usar (Spotless)"
+    cmds:
+      - "{{.MVNW}} spotless:apply"
+
+  check-format:
+    desc: "Verifica si el código cumple con el formato (sin modificarlo)"
+    cmds:
+      - "{{.MVNW}} spotless:check"
+
+  test:
+    desc: "Corre todas las pruebas del proyecto"
+    deps: [format] # Se asegura de formatear el código ANTES de probar/compilar
+    cmds:
+      - "{{.MVNW}} clean verify"
+
+  build:
+    desc: "Construye el JAR ejecutable saltándose los tests"
+    deps: [format]
+    cmds:
+      - "{{.MVNW}} clean package -DskipTests"
+
+  start-infra:
+    desc: "Levanta la infraestructura local (BD, Mailhog, etc.) con Docker Compose"
+    cmds:
+      - docker compose -f "{{.DC_FILE}}" up -d
+
+  stop-infra:
+    desc: "Detiene la infraestructura local"
+    cmds:
+      - docker compose -f "{{.DC_FILE}}" stop
+
+  clean-infra:
+    desc: "Detiene y BORRA los contenedores de infraestructura"
+    cmds:
+      - docker compose -f "{{.DC_FILE}}" down -v
+
+  run:
+    desc: "Inicia la aplicación Spring Boot en local"
+    deps: [start-infra]
+    cmds:
+      - "{{.MVNW}} spring-boot:run"
