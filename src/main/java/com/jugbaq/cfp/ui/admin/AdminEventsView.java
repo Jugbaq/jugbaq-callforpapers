@@ -19,7 +19,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -88,14 +87,13 @@ public class AdminEventsView extends VerticalLayout {
 
         Button save = new Button("Crear", e -> {
             try {
-                Instant eventDate = datePicker.getValue()
-                        .atZone(ZoneId.systemDefault()).toInstant();
+                Instant eventDate =
+                        datePicker.getValue().atZone(ZoneId.systemDefault()).toInstant();
                 eventService.createEvent(
                         slugField.getValue(),
                         nameField.getValue(),
                         eventDate,
-                        securityUtils.getCurrentUserId().orElseThrow()
-                );
+                        securityUtils.getCurrentUserId().orElseThrow());
                 Notification.show("Evento creado");
                 dialog.close();
                 refresh();

@@ -1,10 +1,9 @@
 package com.jugbaq.cfp.users.security;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-
 import java.util.Collection;
 import java.util.Map;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 public class CfpOAuth2User implements OAuth2User {
 
@@ -17,7 +16,9 @@ public class CfpOAuth2User implements OAuth2User {
     }
 
     @Override
-    public Map<String, Object> getAttributes() { return attributes; }
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -25,7 +26,11 @@ public class CfpOAuth2User implements OAuth2User {
     }
 
     @Override
-    public String getName() { return userDetails.getEmail(); }
+    public String getName() {
+        return userDetails.getEmail();
+    }
 
-    public CfpUserDetails getUserDetails() { return userDetails; }
+    public CfpUserDetails getUserDetails() {
+        return userDetails;
+    }
 }

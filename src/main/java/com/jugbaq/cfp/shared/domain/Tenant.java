@@ -8,7 +8,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
 import java.util.UUID;
 
 @Entity
@@ -42,19 +41,43 @@ public class Tenant extends BaseEntity {
         this.name = name;
     }
 
-    public UUID getId() { return id; }
+    public UUID getId() {
+        return id;
+    }
 
-    public String getSlug() { return slug; }
+    public String getSlug() {
+        return slug;
+    }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public String getName() {
+        return name;
+    }
 
-    public String getLogoUrl() { return logoUrl; }
-    public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public String getPrimaryColor() { return primaryColor; }
-    public void setPrimaryColor(String primaryColor) { this.primaryColor = primaryColor; }
+    public String getLogoUrl() {
+        return logoUrl;
+    }
 
-    public TenantStatus getStatus() { return status; }
-    public void setStatus(TenantStatus status) { this.status = status; }
+    public void setLogoUrl(String logoUrl) {
+        this.logoUrl = logoUrl;
+    }
+
+    public String getPrimaryColor() {
+        return primaryColor;
+    }
+
+    public void setPrimaryColor(String primaryColor) {
+        this.primaryColor = primaryColor;
+    }
+
+    public TenantStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TenantStatus status) {
+        this.status = status;
+    }
 }

@@ -31,7 +31,6 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
-
 import java.util.UUID;
 
 @Route(value = "t/:tenantSlug/submit/:eventSlug", layout = MainLayout.class)
@@ -58,9 +57,8 @@ public class SubmitProposalView extends VerticalLayout implements BeforeEnterObs
     private final Button saveDraftBtn = new Button("Guardar borrador");
     private final Button submitBtn = new Button("Enviar propuesta");
 
-    public SubmitProposalView(EventService eventService,
-                              SubmissionService submissionService,
-                              SecurityUtils securityUtils) {
+    public SubmitProposalView(
+            EventService eventService, SubmissionService submissionService, SecurityUtils securityUtils) {
         this.eventService = eventService;
         this.submissionService = submissionService;
         this.securityUtils = securityUtils;
@@ -74,12 +72,8 @@ public class SubmitProposalView extends VerticalLayout implements BeforeEnterObs
         configureButtons();
 
         FormLayout form = new FormLayout();
-        form.add(titleField, abstractField, pitchField,
-                levelField, formatField, trackField, tagsField);
-        form.setResponsiveSteps(
-                new FormLayout.ResponsiveStep("0", 1),
-                new FormLayout.ResponsiveStep("600px", 2)
-        );
+        form.add(titleField, abstractField, pitchField, levelField, formatField, trackField, tagsField);
+        form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("600px", 2));
         form.setColspan(titleField, 2);
         form.setColspan(abstractField, 2);
         form.setColspan(pitchField, 2);
@@ -116,8 +110,17 @@ public class SubmitProposalView extends VerticalLayout implements BeforeEnterObs
         trackField.setItemLabelGenerator(EventTrack::getName);
 
         tagsField.setAllowCustomValue(true);
-        tagsField.setItems("java", "kotlin", "spring-boot", "vaadin", "microservices",
-                "testing", "devops", "ai", "cloud", "architecture");
+        tagsField.setItems(
+                "java",
+                "kotlin",
+                "spring-boot",
+                "vaadin",
+                "microservices",
+                "testing",
+                "devops",
+                "ai",
+                "cloud",
+                "architecture");
         tagsField.setHelperText("Elige o crea tags separando con Enter");
     }
 
@@ -129,12 +132,10 @@ public class SubmitProposalView extends VerticalLayout implements BeforeEnterObs
 
         binder.forField(abstractField)
                 .asRequired("El abstract es obligatorio")
-                .withValidator(a -> a != null && a.length() >= 50,
-                        "Mínimo 50 caracteres — cuéntanos de qué trata")
+                .withValidator(a -> a != null && a.length() >= 50, "Mínimo 50 caracteres — cuéntanos de qué trata")
                 .bind(SubmissionData::getAbstractText, SubmissionData::setAbstractText);
 
-        binder.forField(pitchField)
-                .bind(SubmissionData::getPitch, SubmissionData::setPitch);
+        binder.forField(pitchField).bind(SubmissionData::getPitch, SubmissionData::setPitch);
 
         binder.forField(levelField)
                 .asRequired("Selecciona un nivel")
@@ -144,17 +145,14 @@ public class SubmitProposalView extends VerticalLayout implements BeforeEnterObs
                 .asRequired("Selecciona un formato")
                 .bind(
                         data -> findFormatById(data.getFormatId()),
-                        (data, format) -> data.setFormatId(format != null ? format.getId() : null)
-                );
+                        (data, format) -> data.setFormatId(format != null ? format.getId() : null));
 
         binder.forField(trackField)
                 .bind(
                         data -> findTrackById(data.getTrackId()),
-                        (data, track) -> data.setTrackId(track != null ? track.getId() : null)
-                );
+                        (data, track) -> data.setTrackId(track != null ? track.getId() : null));
 
-        binder.forField(tagsField)
-                .bind(SubmissionData::getTags, SubmissionData::setTags);
+        binder.forField(tagsField).bind(SubmissionData::getTags, SubmissionData::setTags);
     }
 
     private void configureButtons() {
@@ -200,14 +198,16 @@ public class SubmitProposalView extends VerticalLayout implements BeforeEnterObs
         if (id == null || event == null) return null;
         return event.getFormats().stream()
                 .filter(f -> f.getId().equals(id))
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
     }
 
     private EventTrack findTrackById(UUID id) {
         if (id == null || event == null) return null;
         return event.getTracks().stream()
                 .filter(t -> t.getId().equals(id))
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
     }
 
     private void showSuccess(String msg) {
@@ -222,7 +222,8 @@ public class SubmitProposalView extends VerticalLayout implements BeforeEnterObs
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        String eventSlug = beforeEnterEvent.getRouteParameters().get("eventSlug").orElse(null);
+        String eventSlug =
+                beforeEnterEvent.getRouteParameters().get("eventSlug").orElse(null);
         if (eventSlug == null) {
             beforeEnterEvent.rerouteTo("t/jugbaq/events");
             return;
@@ -254,15 +255,12 @@ public class SubmitProposalView extends VerticalLayout implements BeforeEnterObs
             remainingSubmissions = event.getMaxSubmissionsPerSpeaker() - (int) activeSubmissions;
         }
 
-        String remainingText = remainingSubmissions > 0
-                ? " (Te quedan " + remainingSubmissions + ")"
-                : " (Has alcanzado el límite)";
+        String remainingText =
+                remainingSubmissions > 0 ? " (Te quedan " + remainingSubmissions + ")" : " (Has alcanzado el límite)";
 
         title.setText("Enviar propuesta — " + event.getName());
-        eventInfo.setText(
-                "Fecha del evento: " + event.getEventDate() +
-                        " · Máximo " + event.getMaxSubmissionsPerSpeaker() + " propuestas por speaker" + remainingText
-        );
+        eventInfo.setText("Fecha del evento: " + event.getEventDate() + " · Máximo "
+                + event.getMaxSubmissionsPerSpeaker() + " propuestas por speaker" + remainingText);
 
         // Si ya alcanzó el límite, deshabilitamos el formulario de entrada
         if (remainingSubmissions <= 0) {
@@ -293,4 +291,3 @@ public class SubmitProposalView extends VerticalLayout implements BeforeEnterObs
         submitBtn.setEnabled(false);
     }
 }
-

@@ -1,18 +1,16 @@
 package com.jugbaq.cfp.notifications.domain;
 
-import com.jugbaq.cfp.notifications.NotificationSummary;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
-
 public interface NotificationRepository extends JpaRepository<Notification, UUID> {
 
-    List<NotificationSummary> findByUserIdOrderByCreatedAtDesc(UUID userId);
+    List<Notification> findByUserIdOrderByCreatedAtDesc(UUID userId);
 
     long countByUserIdAndReadAtIsNull(UUID userId);
 

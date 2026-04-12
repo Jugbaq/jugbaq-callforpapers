@@ -13,7 +13,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
@@ -49,8 +48,7 @@ public class AgendaSlot extends BaseEntity {
 
     protected AgendaSlot() {}
 
-    public AgendaSlot(Event event, Submission submission, EventTrack track,
-                      Instant startsAt, Instant endsAt) {
+    public AgendaSlot(Event event, Submission submission, EventTrack track, Instant startsAt, Instant endsAt) {
         this.event = event;
         this.submission = submission;
         this.track = track;
@@ -59,8 +57,7 @@ public class AgendaSlot extends BaseEntity {
     }
 
     /** Slot sin charla (break, lunch, registration). */
-    public static AgendaSlot breakSlot(Event event, EventTrack track,
-                                       Instant startsAt, Instant endsAt, String label) {
+    public static AgendaSlot breakSlot(Event event, EventTrack track, Instant startsAt, Instant endsAt, String label) {
         AgendaSlot slot = new AgendaSlot(event, null, track, startsAt, endsAt);
         slot.titleOverride = label;
         return slot;
@@ -84,16 +81,51 @@ public class AgendaSlot extends BaseEntity {
         return "(Slot vacío)";
     }
 
-    public UUID getId() { return id; }
-    public Event getEvent() { return event; }
-    public Submission getSubmission() { return submission; }
-    public void setSubmission(Submission submission) { this.submission = submission; }
-    public EventTrack getTrack() { return track; }
-    public void setTrack(EventTrack track) { this.track = track; }
-    public Instant getStartsAt() { return startsAt; }
-    public void setStartsAt(Instant startsAt) { this.startsAt = startsAt; }
-    public Instant getEndsAt() { return endsAt; }
-    public void setEndsAt(Instant endsAt) { this.endsAt = endsAt; }
-    public String getTitleOverride() { return titleOverride; }
-    public void setTitleOverride(String titleOverride) { this.titleOverride = titleOverride; }
+    public UUID getId() {
+        return id;
+    }
+
+    public Event getEvent() {
+        return event;
+    }
+
+    public Submission getSubmission() {
+        return submission;
+    }
+
+    public void setSubmission(Submission submission) {
+        this.submission = submission;
+    }
+
+    public EventTrack getTrack() {
+        return track;
+    }
+
+    public void setTrack(EventTrack track) {
+        this.track = track;
+    }
+
+    public Instant getStartsAt() {
+        return startsAt;
+    }
+
+    public void setStartsAt(Instant startsAt) {
+        this.startsAt = startsAt;
+    }
+
+    public Instant getEndsAt() {
+        return endsAt;
+    }
+
+    public void setEndsAt(Instant endsAt) {
+        this.endsAt = endsAt;
+    }
+
+    public String getTitleOverride() {
+        return titleOverride;
+    }
+
+    public void setTitleOverride(String titleOverride) {
+        this.titleOverride = titleOverride;
+    }
 }

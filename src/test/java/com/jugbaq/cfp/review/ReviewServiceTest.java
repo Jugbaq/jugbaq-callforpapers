@@ -1,5 +1,8 @@
 package com.jugbaq.cfp.review;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import com.jugbaq.cfp.TestcontainersConfiguration;
 import com.jugbaq.cfp.events.EventService;
 import com.jugbaq.cfp.events.domain.Event;
@@ -15,9 +18,10 @@ import com.jugbaq.cfp.submissions.domain.SubmissionLevel;
 import com.jugbaq.cfp.submissions.domain.SubmissionStatus;
 import com.jugbaq.cfp.submissions.events.SubmissionAcceptedEvent;
 import com.jugbaq.cfp.submissions.events.SubmissionRejectedEvent;
-
 import com.jugbaq.cfp.users.UserRegistrationService;
 import com.jugbaq.cfp.users.domain.User;
+import java.time.Instant;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,23 +32,26 @@ import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
 @RecordApplicationEvents
 @Transactional
 class ReviewServiceTest {
 
-    @Autowired ReviewService reviewService;
-    @Autowired SubmissionService submissionService;
-    @Autowired EventService eventService;
-    @Autowired TenantRepository tenantRepository;
-    @Autowired ApplicationEvents applicationEvents;
+    @Autowired
+    ReviewService reviewService;
+
+    @Autowired
+    SubmissionService submissionService;
+
+    @Autowired
+    EventService eventService;
+
+    @Autowired
+    TenantRepository tenantRepository;
+
+    @Autowired
+    ApplicationEvents applicationEvents;
 
     private static final UUID ADMIN_ID = UUID.fromString("a0000000-0000-0000-0000-000000000001");
     private UUID speakerId;
@@ -67,8 +74,7 @@ class ReviewServiceTest {
         reviewerId = reviewer.getId();
 
         Event event = eventService.createEvent(
-                "review-test-" + UUID.randomUUID(), "Review Test",
-                Instant.now().plusSeconds(86400 * 30), ADMIN_ID);
+                "review-test-" + UUID.randomUUID(), "Review Test", Instant.now().plusSeconds(86400 * 30), ADMIN_ID);
         eventService.updateStatus(event.getId(), EventStatus.CFP_OPEN);
 
         SubmissionData data = new SubmissionData();
@@ -79,12 +85,14 @@ class ReviewServiceTest {
     }
 
     @AfterEach
-    void cleanup() { TenantContext.clear(); }
+    void cleanup() {
+        TenantContext.clear();
+    }
 
     @Test
     void should_submit_score_and_transition_to_under_review() {
-        Review review = reviewService.submitOrUpdateScore(
-                submission.getId(), reviewerId, 4, "Buen tema, abstract claro");
+        Review review =
+                reviewService.submitOrUpdateScore(submission.getId(), reviewerId, 4, "Buen tema, abstract claro");
 
         assertThat(review.getId()).isNotNull();
         assertThat(review.getScore()).isEqualTo(4);
@@ -95,16 +103,14 @@ class ReviewServiceTest {
 
     @Test
     void should_reject_self_review() {
-        assertThatThrownBy(() ->
-                reviewService.submitOrUpdateScore(submission.getId(), speakerId, 5, "Me gusta mucho")
-        ).isInstanceOf(SelfReviewNotAllowedException.class);
+        assertThatThrownBy(() -> reviewService.submitOrUpdateScore(submission.getId(), speakerId, 5, "Me gusta mucho"))
+                .isInstanceOf(SelfReviewNotAllowedException.class);
     }
 
     @Test
     void should_update_existing_review_for_same_reviewer() {
         reviewService.submitOrUpdateScore(submission.getId(), reviewerId, 3, "Inicial");
-        Review updated = reviewService.submitOrUpdateScore(
-                submission.getId(), reviewerId, 5, "Cambié de opinión");
+        Review updated = reviewService.submitOrUpdateScore(submission.getId(), reviewerId, 5, "Cambié de opinión");
 
         assertThat(updated.getScore()).isEqualTo(5);
         assertThat(reviewService.listReviewsForSubmission(submission.getId())).hasSize(1);
@@ -147,7 +153,8 @@ class ReviewServiceTest {
 
         var rejectedEvent = applicationEvents.stream(SubmissionRejectedEvent.class)
                 .filter(e -> e.submissionId().equals(submission.getId()))
-                .findFirst().orElseThrow();
+                .findFirst()
+                .orElseThrow();
         assertThat(rejectedEvent.feedback()).contains("similares");
     }
 

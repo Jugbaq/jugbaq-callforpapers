@@ -2,14 +2,13 @@ package com.jugbaq.cfp.notifications;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
 
 @Service
 public class EmailService {
@@ -19,8 +18,7 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final String fromAddress;
 
-    public EmailService(JavaMailSender mailSender,
-                        @Value("${cfp.mail.from:noreply@jugbaq.dev}") String fromAddress) {
+    public EmailService(JavaMailSender mailSender, @Value("${cfp.mail.from:noreply@jugbaq.dev}") String fromAddress) {
         this.mailSender = mailSender;
         this.fromAddress = fromAddress;
     }

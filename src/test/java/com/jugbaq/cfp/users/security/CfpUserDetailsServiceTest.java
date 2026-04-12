@@ -1,5 +1,8 @@
 package com.jugbaq.cfp.users.security;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+
 import com.jugbaq.cfp.TestcontainersConfiguration;
 import com.jugbaq.cfp.shared.domain.Tenant;
 import com.jugbaq.cfp.shared.domain.TenantRepository;
@@ -15,18 +18,19 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
 @Transactional
 class CfpUserDetailsServiceTest {
 
-    @Autowired CfpUserDetailsService service;
+    @Autowired
+    CfpUserDetailsService service;
+
     @Autowired
     UserRepository userRepository;
-    @Autowired TenantRepository tenantRepository;
+
+    @Autowired
+    TenantRepository tenantRepository;
 
     private Tenant jugbaq;
 
@@ -41,8 +45,7 @@ class CfpUserDetailsServiceTest {
 
         assertThat(details.getUsername()).isEqualTo("admin@jugbaq.dev");
         assertThat(details.isEnabled()).isTrue();
-        assertThat(details.getAuthorities()).extracting("authority")
-                .contains("ROLE_ADMIN", "ROLE_ORGANIZER");
+        assertThat(details.getAuthorities()).extracting("authority").contains("ROLE_ADMIN", "ROLE_ORGANIZER");
     }
 
     @Test
@@ -56,7 +59,8 @@ class CfpUserDetailsServiceTest {
         CfpUserDetails details = (CfpUserDetails) service.loadUserByUsername("multi.role@test.com");
 
         assertThat(details.hasRoleInTenant(jugbaq.getId(), TenantRole.SPEAKER)).isTrue();
-        assertThat(details.hasRoleInTenant(jugbaq.getId(), TenantRole.ORGANIZER)).isTrue();
+        assertThat(details.hasRoleInTenant(jugbaq.getId(), TenantRole.ORGANIZER))
+                .isTrue();
         assertThat(details.hasRoleInTenant(jugbaq.getId(), TenantRole.ADMIN)).isFalse();
     }
 

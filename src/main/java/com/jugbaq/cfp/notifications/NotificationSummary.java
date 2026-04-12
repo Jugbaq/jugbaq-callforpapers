@@ -6,15 +6,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public record NotificationSummary(
-        UUID id,
-        NotificationType type,
-        Map<String, Object> payload,
-        Instant createdAt,
-        boolean isRead
-) {
+        UUID id, NotificationType type, Map<String, Object> payload, Instant createdAt, boolean isRead) {
     public static NotificationSummary from(Notification n) {
-        return new NotificationSummary(
-                n.getId(), n.getType(), n.getPayload(), n.getCreatedAt(), n.getReadAt() != null
-        );
+        return new NotificationSummary(n.getId(), n.getType(), n.getPayload(), n.getCreatedAt(), n.getReadAt() != null);
     }
 }

@@ -18,12 +18,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import org.hibernate.annotations.Filter;
-
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import org.hibernate.annotations.Filter;
 
 @Entity
 @Table(name = "submissions")
@@ -73,14 +72,12 @@ public class Submission extends BaseEntity implements TenantAwareEntity {
     private Instant submittedAt;
 
     @ElementCollection
-    @CollectionTable(name = "submission_tags",
-            joinColumns = @JoinColumn(name = "submission_id"))
+    @CollectionTable(name = "submission_tags", joinColumns = @JoinColumn(name = "submission_id"))
     @Column(name = "tag", length = 50)
     private Set<String> tags = new HashSet<>();
 
     @ElementCollection
-    @CollectionTable(name = "submission_co_speakers",
-            joinColumns = @JoinColumn(name = "submission_id"))
+    @CollectionTable(name = "submission_co_speakers", joinColumns = @JoinColumn(name = "submission_id"))
     @Column(name = "user_id")
     private Set<UUID> coSpeakers = new HashSet<>();
 
@@ -112,11 +109,10 @@ public class Submission extends BaseEntity implements TenantAwareEntity {
         }
     }
 
-    public void updateContent(String title, String abstractText, String pitch,
-                              SubmissionLevel level, Set<String> tags) {
+    public void updateContent(
+            String title, String abstractText, String pitch, SubmissionLevel level, Set<String> tags) {
         if (!status.isEditableBySpeaker()) {
-            throw new IllegalStateException(
-                    "No se puede editar una propuesta en estado " + status);
+            throw new IllegalStateException("No se puede editar una propuesta en estado " + status);
         }
         this.title = title;
         this.abstractText = abstractText;
@@ -126,20 +122,68 @@ public class Submission extends BaseEntity implements TenantAwareEntity {
     }
 
     // --- Getters ---
-    public UUID getId() { return id; }
-    @Override public UUID getTenantId() { return tenantId; }
-    public Event getEvent() { return event; }
-    public UUID getSpeakerId() { return speakerId; }
-    public String getTitle() { return title; }
-    public String getAbstractText() { return abstractText; }
-    public String getPitch() { return pitch; }
-    public SubmissionLevel getLevel() { return level; }
-    public EventSessionFormat getFormat() { return format; }
-    public void setFormat(EventSessionFormat format) { this.format = format; }
-    public EventTrack getTrack() { return track; }
-    public void setTrack(EventTrack track) { this.track = track; }
-    public SubmissionStatus getStatus() { return status; }
-    public Instant getSubmittedAt() { return submittedAt; }
-    public Set<String> getTags() { return tags; }
-    public Set<UUID> getCoSpeakers() { return coSpeakers; }
+    public UUID getId() {
+        return id;
+    }
+
+    @Override
+    public UUID getTenantId() {
+        return tenantId;
+    }
+
+    public Event getEvent() {
+        return event;
+    }
+
+    public UUID getSpeakerId() {
+        return speakerId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getAbstractText() {
+        return abstractText;
+    }
+
+    public String getPitch() {
+        return pitch;
+    }
+
+    public SubmissionLevel getLevel() {
+        return level;
+    }
+
+    public EventSessionFormat getFormat() {
+        return format;
+    }
+
+    public void setFormat(EventSessionFormat format) {
+        this.format = format;
+    }
+
+    public EventTrack getTrack() {
+        return track;
+    }
+
+    public void setTrack(EventTrack track) {
+        this.track = track;
+    }
+
+    public SubmissionStatus getStatus() {
+        return status;
+    }
+
+    public Instant getSubmittedAt() {
+        return submittedAt;
+    }
+
+    public Set<String> getTags() {
+        return tags;
+    }
+
+    public Set<UUID> getCoSpeakers() {
+        return coSpeakers;
+    }
 }

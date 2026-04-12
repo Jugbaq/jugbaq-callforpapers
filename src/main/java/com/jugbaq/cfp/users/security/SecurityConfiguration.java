@@ -18,9 +18,10 @@ public class SecurityConfiguration {
     private final CfpOAuth2UserService oAuth2UserService;
     private final CfpOAuth2SuccessHandler oAuth2SuccessHandler;
 
-    public SecurityConfiguration(CfpUserDetailsService userDetailsService,
-                                 CfpOAuth2UserService oAuth2UserService,
-                                 CfpOAuth2SuccessHandler oAuth2SuccessHandler) {
+    public SecurityConfiguration(
+            CfpUserDetailsService userDetailsService,
+            CfpOAuth2UserService oAuth2UserService,
+            CfpOAuth2SuccessHandler oAuth2SuccessHandler) {
         this.userDetailsService = userDetailsService;
         this.oAuth2UserService = oAuth2UserService;
         this.oAuth2SuccessHandler = oAuth2SuccessHandler;
@@ -35,23 +36,15 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         // 1. Configuración de OAuth2 (Sin .permitAll())
-        http.oauth2Login(oauth2 -> oauth2
-                .loginPage("/login")
-                .userInfoEndpoint(userInfo -> userInfo
-                        .userService(oAuth2UserService)
-                )
-                .successHandler(oAuth2SuccessHandler)
-        );
+        http.oauth2Login(oauth2 -> oauth2.loginPage("/login")
+                .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService))
+                .successHandler(oAuth2SuccessHandler));
 
         // 2. Configuración de Form login (email + password) (Sin .permitAll())
-        http.formLogin(form -> form
-                .loginPage("/login")
-        );
+        http.formLogin(form -> form.loginPage("/login"));
 
         // 3. Configuración de Logout
-        http.logout(logout -> logout
-                .logoutSuccessUrl("/login")
-        );
+        http.logout(logout -> logout.logoutSuccessUrl("/login"));
 
         // 4. UserDetailsService para auth estándar
         http.userDetailsService(userDetailsService);

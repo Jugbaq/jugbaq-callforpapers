@@ -1,12 +1,12 @@
 package com.jugbaq.cfp.users.domain;
 
-import java.util.UUID;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.util.UUID;
 
 @Entity
 @Table(name = "speaker_social_links")
@@ -33,8 +33,19 @@ public class SpeakerSocialLink {
         this.url = url;
     }
 
-    public UUID getId() { return id; }
-    public UUID getUserId() { return userId; }
-    public String getPlatform() { return platform; }
-    public String getUrl() { return url; }
+    public UUID getId() {
+        return id;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public String getPlatform() {
+        return platform;
+    }
+
+    public String getUrl() {
+        return url;
+    }
 }

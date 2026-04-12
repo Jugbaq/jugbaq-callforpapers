@@ -1,12 +1,11 @@
 package com.jugbaq.cfp.users;
 
-import com.jugbaq.cfp.users.domain.UserRepository;
 import com.jugbaq.cfp.users.domain.User;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.jugbaq.cfp.users.domain.UserRepository;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
@@ -22,15 +21,11 @@ public class UserQueryService {
         if (speakerId == null) {
             return "Usuario Desconocido";
         }
-        return userRepository.findById(speakerId)
-                .map(User::getFullName)
-                .orElse("Speaker no encontrado");
+        return userRepository.findById(speakerId).map(User::getFullName).orElse("Speaker no encontrado");
     }
 
     public SpeakerSummary getSpeakerInfo(UUID speakerId) {
-        return userRepository.findById(speakerId)
-                .map(SpeakerSummary::from)
-                .orElse(null);
+        return userRepository.findById(speakerId).map(SpeakerSummary::from).orElse(null);
     }
 
     public List<SpeakerSummary> findOrganizersAndAdmins(UUID tenantId) {

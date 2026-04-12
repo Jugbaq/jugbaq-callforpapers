@@ -1,21 +1,20 @@
 package com.jugbaq.cfp.users.domain;
 
 import com.jugbaq.cfp.shared.domain.BaseEntity;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Table;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "speaker_profiles")
@@ -72,32 +71,79 @@ public class SpeakerProfile extends BaseEntity {
 
     // --- Getters / Setters ---
 
-    public UUID getUserId() { return userId; }
-    public User getUser() { return user; }
+    public UUID getUserId() {
+        return userId;
+    }
 
-    public String getTagline() { return tagline; }
-    public void setTagline(String tagline) { this.tagline = tagline; }
+    public User getUser() {
+        return user;
+    }
 
-    public String getBio() { return bio; }
-    public void setBio(String bio) { this.bio = bio; }
+    public String getTagline() {
+        return tagline;
+    }
 
-    public String getPhotoUrl() { return photoUrl; }
-    public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
+    public void setTagline(String tagline) {
+        this.tagline = tagline;
+    }
 
-    public String getCompany() { return company; }
-    public void setCompany(String company) { this.company = company; }
+    public String getBio() {
+        return bio;
+    }
 
-    public String getJobTitle() { return jobTitle; }
-    public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
 
-    public String getCity() { return city; }
-    public void setCity(String city) { this.city = city; }
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
 
-    public String getCountry() { return country; }
-    public void setCountry(String country) { this.country = country; }
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+    }
 
-    public String getWebsiteUrl() { return websiteUrl; }
-    public void setWebsiteUrl(String websiteUrl) { this.websiteUrl = websiteUrl; }
+    public String getCompany() {
+        return company;
+    }
 
-    public List<SpeakerSocialLink> getSocialLinks() { return Collections.unmodifiableList(socialLinks); }
+    public void setCompany(String company) {
+        this.company = company;
+    }
+
+    public String getJobTitle() {
+        return jobTitle;
+    }
+
+    public void setJobTitle(String jobTitle) {
+        this.jobTitle = jobTitle;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getWebsiteUrl() {
+        return websiteUrl;
+    }
+
+    public void setWebsiteUrl(String websiteUrl) {
+        this.websiteUrl = websiteUrl;
+    }
+
+    public List<SpeakerSocialLink> getSocialLinks() {
+        return Collections.unmodifiableList(socialLinks);
+    }
 }

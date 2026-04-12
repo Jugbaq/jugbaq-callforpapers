@@ -23,9 +23,10 @@ public class CfpOAuth2UserService extends DefaultOAuth2UserService {
     private final TenantRepository tenantRepository;
     private final CfpUserDetailsService userDetailsService;
 
-    public CfpOAuth2UserService(UserRepository userRepository,
-                                TenantRepository tenantRepository,
-                                CfpUserDetailsService userDetailsService) {
+    public CfpOAuth2UserService(
+            UserRepository userRepository,
+            TenantRepository tenantRepository,
+            CfpUserDetailsService userDetailsService) {
         this.userRepository = userRepository;
         this.tenantRepository = tenantRepository;
         this.userDetailsService = userDetailsService;
@@ -44,18 +45,17 @@ public class CfpOAuth2UserService extends DefaultOAuth2UserService {
         String providerUserId = extractProviderUserId(oAuth2User, provider);
 
         if (email == null || email.isBlank()) {
-            throw new OAuth2AuthenticationException(
-                    "No se pudo obtener el email desde " + provider
-            );
+            throw new OAuth2AuthenticationException("No se pudo obtener el email desde " + provider);
         }
 
         // Buscar usuario existente
-        User user = userRepository.findByEmailIgnoreCase(email)
+        User user = userRepository
+                .findByEmailIgnoreCase(email)
                 .orElseGet(() -> createNewUser(email, name, provider, providerUserId));
 
         // Vincular cuenta OAuth si aún no existe
-        boolean hasProvider = user.getOauthAccounts().stream()
-                .anyMatch(oa -> oa.getProvider().equals(provider));
+        boolean hasProvider =
+                user.getOauthAccounts().stream().anyMatch(oa -> oa.getProvider().equals(provider));
         if (!hasProvider) {
             user.addOAuthAccount(provider, providerUserId);
             log.info("Vinculada cuenta {} a usuario {}", provider, email);
@@ -77,17 +77,13 @@ public class CfpOAuth2UserService extends DefaultOAuth2UserService {
         user.initSpeakerProfile();
 
         // Asignar SPEAKER al tenant actual si hay uno en contexto
-        TenantContext.getTenantId().ifPresent(tenantId ->
-                tenantRepository.findById(tenantId).ifPresent(tenant ->
-                        user.assignRole(tenant, TenantRole.SPEAKER)
-                )
-        );
+        TenantContext.getTenantId().ifPresent(tenantId -> tenantRepository
+                .findById(tenantId)
+                .ifPresent(tenant -> user.assignRole(tenant, TenantRole.SPEAKER)));
 
         // Si no hay tenant en contexto, asignar a jugbaq por defecto
         if (user.getTenantRoles().isEmpty()) {
-            tenantRepository.findBySlug("jugbaq").ifPresent(tenant ->
-                    user.assignRole(tenant, TenantRole.SPEAKER)
-            );
+            tenantRepository.findBySlug("jugbaq").ifPresent(tenant -> user.assignRole(tenant, TenantRole.SPEAKER));
         }
 
         return userRepository.save(user);

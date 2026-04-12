@@ -11,13 +11,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-
 import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "oauth_accounts",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"provider", "provider_user_id"}))
+@Table(name = "oauth_accounts", uniqueConstraints = @UniqueConstraint(columnNames = {"provider", "provider_user_id"}))
 public class OAuthAccount {
 
     @Id
@@ -50,9 +48,23 @@ public class OAuthAccount {
         this.createdAt = Instant.now();
     }
 
-    public UUID getId() { return id; }
-    public User getUser() { return user; }
-    public String getProvider() { return provider; }
-    public String getProviderUserId() { return providerUserId; }
-    public Instant getCreatedAt() { return createdAt; }
+    public UUID getId() {
+        return id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public String getProviderUserId() {
+        return providerUserId;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
 }

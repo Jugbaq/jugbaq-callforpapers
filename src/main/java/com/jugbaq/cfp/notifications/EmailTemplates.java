@@ -4,10 +4,10 @@ public final class EmailTemplates {
 
     private EmailTemplates() {}
 
-    public static final String SUBMISSION_RECEIVED_SUBJECT =
-            "Recibimos tu propuesta: {{title}}";
+    public static final String SUBMISSION_RECEIVED_SUBJECT = "Recibimos tu propuesta: {{title}}";
 
-    public static final String SUBMISSION_RECEIVED_BODY = """
+    public static final String SUBMISSION_RECEIVED_BODY =
+            """
         <!DOCTYPE html>
         <html>
         <body style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
@@ -28,10 +28,10 @@ public final class EmailTemplates {
         </html>
         """;
 
-    public static final String SUBMISSION_NEW_SUBJECT =
-            "Nueva propuesta: {{title}}";
+    public static final String SUBMISSION_NEW_SUBJECT = "Nueva propuesta: {{title}}";
 
-    public static final String SUBMISSION_NEW_BODY = """
+    public static final String SUBMISSION_NEW_BODY =
+            """
         <!DOCTYPE html>
         <html>
         <body style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
@@ -50,10 +50,10 @@ public final class EmailTemplates {
         </html>
         """;
 
-    public static final String SUBMISSION_ACCEPTED_SUBJECT =
-            "🎉 ¡Tu propuesta fue aceptada!: {{title}}";
-    
-    public static final String SUBMISSION_ACCEPTED_BODY = """
+    public static final String SUBMISSION_ACCEPTED_SUBJECT = "🎉 ¡Tu propuesta fue aceptada!: {{title}}";
+
+    public static final String SUBMISSION_ACCEPTED_BODY =
+            """
     <!DOCTYPE html>
     <html>
     <body style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
@@ -71,10 +71,10 @@ public final class EmailTemplates {
     </html>
     """;
 
-    public static final String SUBMISSION_REJECTED_SUBJECT =
-            "Sobre tu propuesta: {{title}}";
+    public static final String SUBMISSION_REJECTED_SUBJECT = "Sobre tu propuesta: {{title}}";
 
-    public static final String SUBMISSION_REJECTED_BODY = """
+    public static final String SUBMISSION_REJECTED_BODY =
+            """
     <!DOCTYPE html>
     <html>
     <body style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
@@ -88,5 +88,4 @@ public final class EmailTemplates {
     </body>
     </html>
     """;
-
 }

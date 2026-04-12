@@ -11,9 +11,6 @@ import com.jugbaq.cfp.publishing.domain.AgendaSlotRepository;
 import com.jugbaq.cfp.submissions.domain.Submission;
 import com.jugbaq.cfp.submissions.domain.SubmissionRepository;
 import com.jugbaq.cfp.submissions.domain.SubmissionStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -21,6 +18,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -30,9 +29,10 @@ public class AgendaService {
     private final EventRepository eventRepository;
     private final SubmissionRepository submissionRepository;
 
-    public AgendaService(AgendaSlotRepository slotRepository,
-                         EventRepository eventRepository,
-                         SubmissionRepository submissionRepository) {
+    public AgendaService(
+            AgendaSlotRepository slotRepository,
+            EventRepository eventRepository,
+            SubmissionRepository submissionRepository) {
         this.slotRepository = slotRepository;
         this.eventRepository = eventRepository;
         this.submissionRepository = submissionRepository;
@@ -42,23 +42,24 @@ public class AgendaService {
      * Crea o actualiza un slot. Valida conflictos antes de guardar.
      * Si submission != null, debe estar en estado ACCEPTED o CONFIRMED.
      */
-    public AgendaSlot saveSlot(UUID eventId, UUID submissionId, UUID trackId,
-                               Instant startsAt, Instant endsAt, String titleOverride) {
+    public AgendaSlot saveSlot(
+            UUID eventId, UUID submissionId, UUID trackId, Instant startsAt, Instant endsAt, String titleOverride) {
         if (!startsAt.isBefore(endsAt)) {
             throw new IllegalArgumentException("startsAt debe ser antes de endsAt");
         }
 
-        Event event = eventRepository.findById(eventId)
+        Event event = eventRepository
+                .findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado"));
 
         Submission submission = null;
         if (submissionId != null) {
-            submission = submissionRepository.findById(submissionId)
+            submission = submissionRepository
+                    .findById(submissionId)
                     .orElseThrow(() -> new IllegalArgumentException("Submission no encontrada"));
             if (submission.getStatus() != SubmissionStatus.ACCEPTED
                     && submission.getStatus() != SubmissionStatus.CONFIRMED) {
-                throw new AgendaConflictException(
-                        "Solo submissions ACCEPTED o CONFIRMED pueden ir en la agenda");
+                throw new AgendaConflictException("Solo submissions ACCEPTED o CONFIRMED pueden ir en la agenda");
             }
         }
 
@@ -82,8 +83,8 @@ public class AgendaService {
      * Mueve un slot existente a otro track o tiempo. Re-valida conflictos.
      */
     public AgendaSlot moveSlot(UUID slotId, UUID newTrackId, Instant newStartsAt, Instant newEndsAt) {
-        AgendaSlot slot = slotRepository.findById(slotId)
-                .orElseThrow(() -> new IllegalArgumentException("Slot no encontrado"));
+        AgendaSlot slot =
+                slotRepository.findById(slotId).orElseThrow(() -> new IllegalArgumentException("Slot no encontrado"));
 
         if (newTrackId != null) {
             EventTrack track = slot.getEvent().getTracks().stream()
@@ -107,7 +108,8 @@ public class AgendaService {
      * Publica el evento. Valida que toda submission ACCEPTED tenga slot asignado.
      */
     public void publishEvent(UUID eventId) {
-        Event event = eventRepository.findById(eventId)
+        Event event = eventRepository
+                .findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado"));
 
         if (event.getStatus() != EventStatus.REVIEW) {
@@ -115,10 +117,8 @@ public class AgendaService {
                     "El evento debe estar en REVIEW para publicar. Estado actual: " + event.getStatus());
         }
 
-        List<Submission> accepted = submissionRepository.findByEventIdOrderByCreatedAtDesc(eventId)
-                .stream()
-                .filter(s -> s.getStatus() == SubmissionStatus.ACCEPTED
-                        || s.getStatus() == SubmissionStatus.CONFIRMED)
+        List<Submission> accepted = submissionRepository.findByEventIdOrderByCreatedAtDesc(eventId).stream()
+                .filter(s -> s.getStatus() == SubmissionStatus.ACCEPTED || s.getStatus() == SubmissionStatus.CONFIRMED)
                 .toList();
 
         Set<UUID> slottedSubmissionIds = new HashSet<>();
@@ -133,8 +133,7 @@ public class AgendaService {
             }
         }
         if (!missing.isEmpty()) {
-            throw new AgendaIncompleteException(
-                    "Faltan asignar slots para: " + String.join(", ", missing));
+            throw new AgendaIncompleteException("Faltan asignar slots para: " + String.join(", ", missing));
         }
 
         event.transitionTo(EventStatus.PUBLISHED);
@@ -154,18 +153,19 @@ public class AgendaService {
     // --- Validaciones ---
 
     private void validateNoConflicts(AgendaSlot slot, UUID excludeSlotId) {
-        List<AgendaSlot> existing = slotRepository.findByEventOrdered(slot.getEvent().getId());
+        List<AgendaSlot> existing =
+                slotRepository.findByEventOrdered(slot.getEvent().getId());
 
         for (AgendaSlot other : existing) {
             if (excludeSlotId != null && other.getId().equals(excludeSlotId)) continue;
             if (!slot.overlapsWith(other)) continue;
 
             // Conflicto 1: mismo track al mismo tiempo
-            if (slot.getTrack() != null && other.getTrack() != null
+            if (slot.getTrack() != null
+                    && other.getTrack() != null
                     && slot.getTrack().getId().equals(other.getTrack().getId())) {
-                throw new AgendaConflictException(
-                        "Conflicto de track: ya hay un slot en '" + other.getTrack().getName()
-                                + "' que se solapa con este horario");
+                throw new AgendaConflictException("Conflicto de track: ya hay un slot en '"
+                        + other.getTrack().getName() + "' que se solapa con este horario");
             }
 
             // Conflicto 2: mismo speaker en dos lugares al mismo tiempo
@@ -173,9 +173,8 @@ public class AgendaService {
                 UUID newSpeaker = slot.getSubmission().getSpeakerId();
                 UUID otherSpeaker = other.getSubmission().getSpeakerId();
                 if (newSpeaker.equals(otherSpeaker)) {
-                    throw new AgendaConflictException(
-                            "El speaker ya tiene una charla simultánea: '"
-                                    + other.getSubmission().getTitle() + "'");
+                    throw new AgendaConflictException("El speaker ya tiene una charla simultánea: '"
+                            + other.getSubmission().getTitle() + "'");
                 }
             }
         }

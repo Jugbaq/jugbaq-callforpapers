@@ -13,15 +13,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import org.hibernate.annotations.Filter;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.hibernate.annotations.Filter;
 
 @Entity
-@Table(name = "events",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"tenant_id", "slug"}))
+@Table(name = "events", uniqueConstraints = @UniqueConstraint(columnNames = {"tenant_id", "slug"}))
 @Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class Event extends BaseEntity implements TenantAwareEntity {
 
@@ -87,8 +86,7 @@ public class Event extends BaseEntity implements TenantAwareEntity {
 
     public void transitionTo(EventStatus newStatus) {
         if (!status.canTransitionTo(newStatus)) {
-            throw new IllegalStateException(
-                    "Transición inválida: " + status + " → " + newStatus);
+            throw new IllegalStateException("Transición inválida: " + status + " → " + newStatus);
         }
         this.status = newStatus;
     }
@@ -110,30 +108,108 @@ public class Event extends BaseEntity implements TenantAwareEntity {
     }
 
     // Getters / setters esenciales
-    public UUID getId() { return id; }
-    @Override public UUID getTenantId() { return tenantId; }
-    public String getSlug() { return slug; }
-    public void setSlug(String slug) { this.slug = slug; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public String getTagline() { return tagline; }
-    public void setTagline(String tagline) { this.tagline = tagline; }
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-    public Instant getEventDate() { return eventDate; }
-    public void setEventDate(Instant eventDate) { this.eventDate = eventDate; }
-    public String getLocation() { return location; }
-    public void setLocation(String location) { this.location = location; }
-    public boolean isOnline() { return online; }
-    public void setOnline(boolean online) { this.online = online; }
-    public Instant getCfpOpensAt() { return cfpOpensAt; }
-    public void setCfpOpensAt(Instant v) { this.cfpOpensAt = v; }
-    public Instant getCfpClosesAt() { return cfpClosesAt; }
-    public void setCfpClosesAt(Instant v) { this.cfpClosesAt = v; }
-    public EventStatus getStatus() { return status; }
-    public int getMaxSubmissionsPerSpeaker() { return maxSubmissionsPerSpeaker; }
-    public void setMaxSubmissionsPerSpeaker(int v) { this.maxSubmissionsPerSpeaker = v; }
-    public UUID getCreatedBy() { return createdBy; }
-    public List<EventTrack> getTracks() { return tracks; }
-    public List<EventSessionFormat> getFormats() { return formats; }
+    public UUID getId() {
+        return id;
+    }
+
+    @Override
+    public UUID getTenantId() {
+        return tenantId;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getTagline() {
+        return tagline;
+    }
+
+    public void setTagline(String tagline) {
+        this.tagline = tagline;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Instant getEventDate() {
+        return eventDate;
+    }
+
+    public void setEventDate(Instant eventDate) {
+        this.eventDate = eventDate;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
+    }
+
+    public Instant getCfpOpensAt() {
+        return cfpOpensAt;
+    }
+
+    public void setCfpOpensAt(Instant v) {
+        this.cfpOpensAt = v;
+    }
+
+    public Instant getCfpClosesAt() {
+        return cfpClosesAt;
+    }
+
+    public void setCfpClosesAt(Instant v) {
+        this.cfpClosesAt = v;
+    }
+
+    public EventStatus getStatus() {
+        return status;
+    }
+
+    public int getMaxSubmissionsPerSpeaker() {
+        return maxSubmissionsPerSpeaker;
+    }
+
+    public void setMaxSubmissionsPerSpeaker(int v) {
+        this.maxSubmissionsPerSpeaker = v;
+    }
+
+    public UUID getCreatedBy() {
+        return createdBy;
+    }
+
+    public List<EventTrack> getTracks() {
+        return tracks;
+    }
+
+    public List<EventSessionFormat> getFormats() {
+        return formats;
+    }
 }

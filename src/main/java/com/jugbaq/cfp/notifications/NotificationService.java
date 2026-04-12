@@ -1,13 +1,11 @@
 package com.jugbaq.cfp.notifications;
 
-import com.jugbaq.cfp.notifications.domain.Notification;
 import com.jugbaq.cfp.notifications.domain.NotificationRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -21,7 +19,9 @@ public class NotificationService {
 
     @Transactional(readOnly = true)
     public List<NotificationSummary> listForUser(UUID userId) {
-        return repository.findByUserIdOrderByCreatedAtDesc(userId);
+        return repository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+                .map(NotificationSummary::from)
+                .toList();
     }
 
     @Transactional(readOnly = true)

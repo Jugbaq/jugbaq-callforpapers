@@ -71,8 +71,8 @@ public class RegistrationView extends VerticalLayout {
         binder.forField(emailField)
                 .asRequired("El email es obligatorio")
                 .withValidator(new EmailValidator("Email inválido"))
-                .withValidator(email -> !userRegistrationService.emailExists(email),
-                        "Ya existe una cuenta con este email")
+                .withValidator(
+                        email -> !userRegistrationService.emailExists(email), "Ya existe una cuenta con este email")
                 .bind(RegistrationData::getEmail, RegistrationData::setEmail);
 
         binder.forField(passwordField)
@@ -82,8 +82,7 @@ public class RegistrationView extends VerticalLayout {
 
         binder.forField(confirmPasswordField)
                 .asRequired("Confirma tu contraseña")
-                .withValidator(confirm -> confirm.equals(passwordField.getValue()),
-                        "Las contraseñas no coinciden")
+                .withValidator(confirm -> confirm.equals(passwordField.getValue()), "Las contraseñas no coinciden")
                 .bind(RegistrationData::getConfirmPassword, RegistrationData::setConfirmPassword);
 
         registerBtn.addClickListener(event -> {
@@ -94,32 +93,26 @@ public class RegistrationView extends VerticalLayout {
                 userRegistrationService.registerSpeaker(data.getEmail(), data.getFullName(), data.getPassword());
 
                 Notification.show(
-                        "¡Registro exitoso! Ya puedes iniciar sesión.",
-                        4000,
-                        Notification.Position.TOP_CENTER
-                ).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                                "¡Registro exitoso! Ya puedes iniciar sesión.", 4000, Notification.Position.TOP_CENTER)
+                        .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
                 getUI().ifPresent(ui -> ui.navigate("login"));
 
             } catch (ValidationException e) {
-                Notification.show(
-                        "Corrige los errores del formulario",
-                        3000,
-                        Notification.Position.TOP_CENTER
-                ).addThemeVariants(NotificationVariant.LUMO_ERROR);
+                Notification.show("Corrige los errores del formulario", 3000, Notification.Position.TOP_CENTER)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
             } catch (Exception e) {
-            // Catch genérico por si falla algo en la base de datos durante el guardado
-            Notification.show(
-                    "Error al registrar el usuario. Inténtalo de nuevo.",
-                    4000,
-                    Notification.Position.TOP_CENTER
-            ).addThemeVariants(NotificationVariant.LUMO_ERROR);
-            e.printStackTrace(); // En producción, deberías usar un logger aquí
-        }
+                // Catch genérico por si falla algo en la base de datos durante el guardado
+                Notification.show(
+                                "Error al registrar el usuario. Inténtalo de nuevo.",
+                                4000,
+                                Notification.Position.TOP_CENTER)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                e.printStackTrace(); // En producción, deberías usar un logger aquí
+            }
         });
 
-        add(title, fullNameField, emailField, passwordField, confirmPasswordField,
-                registerBtn, loginLink);
+        add(title, fullNameField, emailField, passwordField, confirmPasswordField, registerBtn, loginLink);
     }
 
     /**
@@ -131,16 +124,36 @@ public class RegistrationView extends VerticalLayout {
         private String password;
         private String confirmPassword;
 
-        public String getFullName() { return fullName; }
-        public void setFullName(String fullName) { this.fullName = fullName; }
+        public String getFullName() {
+            return fullName;
+        }
 
-        public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
+        public void setFullName(String fullName) {
+            this.fullName = fullName;
+        }
 
-        public String getPassword() { return password; }
-        public void setPassword(String password) { this.password = password; }
+        public String getEmail() {
+            return email;
+        }
 
-        public String getConfirmPassword() { return confirmPassword; }
-        public void setConfirmPassword(String confirmPassword) { this.confirmPassword = confirmPassword; }
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public String getConfirmPassword() {
+            return confirmPassword;
+        }
+
+        public void setConfirmPassword(String confirmPassword) {
+            this.confirmPassword = confirmPassword;
+        }
     }
 }

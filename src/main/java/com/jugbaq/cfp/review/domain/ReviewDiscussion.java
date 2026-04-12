@@ -7,7 +7,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
 import java.util.UUID;
 
 @Entity
@@ -35,8 +34,19 @@ public class ReviewDiscussion extends BaseEntity {
         this.message = message;
     }
 
-    public UUID getId() { return id; }
-    public UUID getSubmissionId() { return submissionId; }
-    public UUID getAuthorId() { return authorId; }
-    public String getMessage() { return message; }
+    public UUID getId() {
+        return id;
+    }
+
+    public UUID getSubmissionId() {
+        return submissionId;
+    }
+
+    public UUID getAuthorId() {
+        return authorId;
+    }
+
+    public String getMessage() {
+        return message;
+    }
 }

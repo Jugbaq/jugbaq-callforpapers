@@ -14,7 +14,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -72,9 +71,7 @@ public class User extends BaseEntity {
     }
 
     public boolean hasRole(UUID tenantId, TenantRole role) {
-        return tenantRoles.stream()
-                .anyMatch(utr -> utr.getTenant().getId().equals(tenantId)
-                        && utr.getRole() == role);
+        return tenantRoles.stream().anyMatch(utr -> utr.getTenant().getId().equals(tenantId) && utr.getRole() == role);
     }
 
     public void initSpeakerProfile() {
@@ -85,23 +82,55 @@ public class User extends BaseEntity {
 
     // --- Getters / Setters ---
 
-    public UUID getId() { return id; }
+    public UUID getId() {
+        return id;
+    }
 
-    public String getEmail() { return email; }
+    public String getEmail() {
+        return email;
+    }
 
-    public String getPasswordHash() { return passwordHash; }
-    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+    public String getPasswordHash() {
+        return passwordHash;
+    }
 
-    public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
 
-    public boolean isEmailVerified() { return emailVerified; }
-    public void setEmailVerified(boolean emailVerified) { this.emailVerified = emailVerified; }
+    public String getFullName() {
+        return fullName;
+    }
 
-    public UserStatus getStatus() { return status; }
-    public void setStatus(UserStatus status) { this.status = status; }
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 
-    public Set<OAuthAccount> getOauthAccounts() { return Collections.unmodifiableSet(oauthAccounts); }
-    public Set<UserTenantRole> getTenantRoles() { return Collections.unmodifiableSet(tenantRoles); }
-    public SpeakerProfile getSpeakerProfile() { return speakerProfile; }
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
+    }
+
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
+
+    public Set<OAuthAccount> getOauthAccounts() {
+        return Collections.unmodifiableSet(oauthAccounts);
+    }
+
+    public Set<UserTenantRole> getTenantRoles() {
+        return Collections.unmodifiableSet(tenantRoles);
+    }
+
+    public SpeakerProfile getSpeakerProfile() {
+        return speakerProfile;
+    }
 }

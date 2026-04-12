@@ -1,11 +1,10 @@
 package com.jugbaq.cfp.users.security;
 
 import com.jugbaq.cfp.users.TenantRole;
+import java.util.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.*;
 
 public class CfpUserDetails implements UserDetails {
 
@@ -16,12 +15,13 @@ public class CfpUserDetails implements UserDetails {
     private final boolean active;
     private final Map<UUID, Set<TenantRole>> rolesByTenant;
 
-    public CfpUserDetails(UUID userId,
-                          String email,
-                          String passwordHash,
-                          String fullName,
-                          boolean active,
-                          Map<UUID, Set<TenantRole>> rolesByTenant) {
+    public CfpUserDetails(
+            UUID userId,
+            String email,
+            String passwordHash,
+            String fullName,
+            boolean active,
+            Map<UUID, Set<TenantRole>> rolesByTenant) {
         this.userId = userId;
         this.email = email;
         this.passwordHash = passwordHash;
@@ -40,9 +40,7 @@ public class CfpUserDetails implements UserDetails {
         rolesByTenant.values().stream()
                 .flatMap(Set::stream)
                 .distinct()
-                .forEach(role -> authorities.add(
-                        new SimpleGrantedAuthority("ROLE_" + role.name())
-                ));
+                .forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name())));
         return authorities;
     }
 
@@ -55,25 +53,48 @@ public class CfpUserDetails implements UserDetails {
     }
 
     @Override
-    public String getPassword() { return passwordHash; }
+    public String getPassword() {
+        return passwordHash;
+    }
 
     @Override
-    public String getUsername() { return email; }
+    public String getUsername() {
+        return email;
+    }
 
     @Override
-    public boolean isAccountNonExpired() { return active; }
+    public boolean isAccountNonExpired() {
+        return active;
+    }
 
     @Override
-    public boolean isAccountNonLocked() { return active; }
+    public boolean isAccountNonLocked() {
+        return active;
+    }
 
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isEnabled() { return active; }
+    public boolean isEnabled() {
+        return active;
+    }
 
-    public UUID getUserId() { return userId; }
-    public String getEmail() { return email; }
-    public String getFullName() { return fullName; }
-    public Map<UUID, Set<TenantRole>> getRolesByTenant() { return rolesByTenant; }
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public Map<UUID, Set<TenantRole>> getRolesByTenant() {
+        return rolesByTenant;
+    }
 }

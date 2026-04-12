@@ -1,5 +1,8 @@
 package com.jugbaq.cfp.submissions;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import com.jugbaq.cfp.TestcontainersConfiguration;
 import com.jugbaq.cfp.events.EventService;
 import com.jugbaq.cfp.events.domain.Event;
@@ -13,9 +16,10 @@ import com.jugbaq.cfp.submissions.domain.SubmissionLevel;
 import com.jugbaq.cfp.submissions.domain.SubmissionLimitExceededException;
 import com.jugbaq.cfp.submissions.domain.SubmissionStatus;
 import com.jugbaq.cfp.submissions.events.SubmissionSubmittedEvent;
-
 import com.jugbaq.cfp.users.domain.User;
 import com.jugbaq.cfp.users.domain.UserRepository;
+import java.time.Instant;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,22 +30,24 @@ import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
 @RecordApplicationEvents
 @Transactional
 class SubmissionServiceTest {
 
-    @Autowired SubmissionService submissionService;
-    @Autowired EventService eventService;
-    @Autowired TenantRepository tenantRepository;
-    @Autowired ApplicationEvents applicationEvents;
+    @Autowired
+    SubmissionService submissionService;
+
+    @Autowired
+    EventService eventService;
+
+    @Autowired
+    TenantRepository tenantRepository;
+
+    @Autowired
+    ApplicationEvents applicationEvents;
+
     @Autowired
     UserRepository userRepository;
 
@@ -65,8 +71,7 @@ class SubmissionServiceTest {
                 "sub-test-" + UUID.randomUUID(),
                 "Submission Test Event",
                 Instant.now().plusSeconds(86400 * 30),
-                ADMIN_ID
-        );
+                ADMIN_ID);
         eventService.updateStatus(openEvent.getId(), EventStatus.CFP_OPEN);
     }
 
@@ -93,8 +98,7 @@ class SubmissionServiceTest {
                 "closed-" + UUID.randomUUID(), "Closed", Instant.now().plusSeconds(86400), ADMIN_ID);
         // Queda en DRAFT, CFP no abierto
 
-        assertThatThrownBy(() -> submissionService.createDraft(
-                draftEvent.getId(), speakerId, buildData("X")))
+        assertThatThrownBy(() -> submissionService.createDraft(draftEvent.getId(), speakerId, buildData("X")))
                 .isInstanceOf(CfpClosedException.class);
     }
 
@@ -105,8 +109,7 @@ class SubmissionServiceTest {
         submissionService.createDraft(openEvent.getId(), speakerId, buildData("Charla 2"));
         submissionService.createDraft(openEvent.getId(), speakerId, buildData("Charla 3"));
 
-        assertThatThrownBy(() -> submissionService.createDraft(
-                openEvent.getId(), speakerId, buildData("Charla 4")))
+        assertThatThrownBy(() -> submissionService.createDraft(openEvent.getId(), speakerId, buildData("Charla 4")))
                 .isInstanceOf(SubmissionLimitExceededException.class);
     }
 
@@ -119,15 +122,13 @@ class SubmissionServiceTest {
         submissionService.withdraw(first.getId(), speakerId);
 
         // Ahora debe poder crear una más
-        Submission fourth = submissionService.createDraft(
-                openEvent.getId(), speakerId, buildData("C4"));
+        Submission fourth = submissionService.createDraft(openEvent.getId(), speakerId, buildData("C4"));
         assertThat(fourth.getId()).isNotNull();
     }
 
     @Test
     void should_publish_event_when_submitted() {
-        Submission draft = submissionService.createDraft(
-                openEvent.getId(), speakerId, buildData("Evento publicado"));
+        Submission draft = submissionService.createDraft(openEvent.getId(), speakerId, buildData("Evento publicado"));
 
         submissionService.markAsSubmitted(draft.getId(), speakerId);
 
@@ -139,8 +140,7 @@ class SubmissionServiceTest {
 
     @Test
     void should_reject_withdraw_when_not_owner() {
-        Submission draft = submissionService.createDraft(
-                openEvent.getId(), speakerId, buildData("Mía"));
+        Submission draft = submissionService.createDraft(openEvent.getId(), speakerId, buildData("Mía"));
         UUID otroSpeaker = UUID.randomUUID();
 
         assertThatThrownBy(() -> submissionService.withdraw(draft.getId(), otroSpeaker))
@@ -149,8 +149,7 @@ class SubmissionServiceTest {
 
     @Test
     void should_update_draft_content() {
-        Submission draft = submissionService.createDraft(
-                openEvent.getId(), speakerId, buildData("Título original"));
+        Submission draft = submissionService.createDraft(openEvent.getId(), speakerId, buildData("Título original"));
 
         SubmissionData updated = buildData("Título actualizado");
         updated.setAbstractText("Nuevo abstract mucho más detallado");

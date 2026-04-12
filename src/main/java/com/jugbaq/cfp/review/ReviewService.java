@@ -6,19 +6,18 @@ import com.jugbaq.cfp.review.domain.ReviewDiscussionRepository;
 import com.jugbaq.cfp.review.domain.ReviewNotAllowedInStateException;
 import com.jugbaq.cfp.review.domain.ReviewRepository;
 import com.jugbaq.cfp.review.domain.SelfReviewNotAllowedException;
+import com.jugbaq.cfp.shared.tenant.TenantContext;
 import com.jugbaq.cfp.submissions.domain.Submission;
 import com.jugbaq.cfp.submissions.domain.SubmissionRepository;
 import com.jugbaq.cfp.submissions.domain.SubmissionStatus;
 import com.jugbaq.cfp.submissions.events.SubmissionAcceptedEvent;
 import com.jugbaq.cfp.submissions.events.SubmissionRejectedEvent;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import com.jugbaq.cfp.shared.tenant.TenantContext;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -29,10 +28,11 @@ public class ReviewService {
     private final SubmissionRepository submissionRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public ReviewService(ReviewRepository reviewRepository,
-                         ReviewDiscussionRepository discussionRepository,
-                         SubmissionRepository submissionRepository,
-                         ApplicationEventPublisher eventPublisher) {
+    public ReviewService(
+            ReviewRepository reviewRepository,
+            ReviewDiscussionRepository discussionRepository,
+            SubmissionRepository submissionRepository,
+            ApplicationEventPublisher eventPublisher) {
         this.reviewRepository = reviewRepository;
         this.discussionRepository = discussionRepository;
         this.submissionRepository = submissionRepository;
@@ -69,8 +69,7 @@ public class ReviewService {
             submissionRepository.save(submission);
         }
 
-        Optional<Review> existing = reviewRepository.findBySubmissionIdAndReviewerId(
-                submissionId, reviewerId);
+        Optional<Review> existing = reviewRepository.findBySubmissionIdAndReviewerId(submissionId, reviewerId);
 
         if (existing.isPresent()) {
             existing.get().update(score, comment);
@@ -78,8 +77,7 @@ public class ReviewService {
         }
 
         UUID tenantId = TenantContext.requireTenantId();
-        return reviewRepository.save(new Review(
-                tenantId, submissionId, reviewerId, score, comment));
+        return reviewRepository.save(new Review(tenantId, submissionId, reviewerId, score, comment));
     }
 
     public void accept(UUID submissionId) {
@@ -92,8 +90,7 @@ public class ReviewService {
                 submission.getEvent().getId(),
                 submission.getSpeakerId(),
                 submission.getTenantId(),
-                submission.getTitle()
-        ));
+                submission.getTitle()));
     }
 
     public void reject(UUID submissionId, String feedback) {
@@ -107,8 +104,7 @@ public class ReviewService {
                 submission.getSpeakerId(),
                 submission.getTenantId(),
                 submission.getTitle(),
-                feedback
-        ));
+                feedback));
     }
 
     public ReviewDiscussion postDiscussion(UUID submissionId, UUID authorId, String message) {
@@ -138,7 +134,8 @@ public class ReviewService {
     }
 
     private Submission loadSubmission(UUID id) {
-        return submissionRepository.findById(id)
+        return submissionRepository
+                .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Submission no encontrada"));
     }
 }

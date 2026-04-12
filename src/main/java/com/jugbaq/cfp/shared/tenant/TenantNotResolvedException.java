@@ -5,4 +5,3 @@ public class TenantNotResolvedException extends RuntimeException {
         super(message);
     }
 }
-

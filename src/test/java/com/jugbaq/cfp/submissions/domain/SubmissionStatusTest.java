@@ -1,22 +1,29 @@
 package com.jugbaq.cfp.submissions.domain;
 
-import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
 
 class SubmissionStatusTest {
 
     @Test
     void draft_can_go_to_submitted_or_withdrawn() {
-        assertThat(SubmissionStatus.DRAFT.canTransitionTo(SubmissionStatus.SUBMITTED)).isTrue();
-        assertThat(SubmissionStatus.DRAFT.canTransitionTo(SubmissionStatus.WITHDRAWN)).isTrue();
-        assertThat(SubmissionStatus.DRAFT.canTransitionTo(SubmissionStatus.ACCEPTED)).isFalse();
+        assertThat(SubmissionStatus.DRAFT.canTransitionTo(SubmissionStatus.SUBMITTED))
+                .isTrue();
+        assertThat(SubmissionStatus.DRAFT.canTransitionTo(SubmissionStatus.WITHDRAWN))
+                .isTrue();
+        assertThat(SubmissionStatus.DRAFT.canTransitionTo(SubmissionStatus.ACCEPTED))
+                .isFalse();
     }
 
     @Test
     void under_review_can_only_go_to_accepted_or_rejected() {
-        assertThat(SubmissionStatus.UNDER_REVIEW.canTransitionTo(SubmissionStatus.ACCEPTED)).isTrue();
-        assertThat(SubmissionStatus.UNDER_REVIEW.canTransitionTo(SubmissionStatus.REJECTED)).isTrue();
-        assertThat(SubmissionStatus.UNDER_REVIEW.canTransitionTo(SubmissionStatus.WITHDRAWN)).isFalse();
+        assertThat(SubmissionStatus.UNDER_REVIEW.canTransitionTo(SubmissionStatus.ACCEPTED))
+                .isTrue();
+        assertThat(SubmissionStatus.UNDER_REVIEW.canTransitionTo(SubmissionStatus.REJECTED))
+                .isTrue();
+        assertThat(SubmissionStatus.UNDER_REVIEW.canTransitionTo(SubmissionStatus.WITHDRAWN))
+                .isFalse();
     }
 
     @Test

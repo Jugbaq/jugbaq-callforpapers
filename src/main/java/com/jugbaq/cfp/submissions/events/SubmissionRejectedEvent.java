@@ -8,5 +8,5 @@ public record SubmissionRejectedEvent(
         UUID speakerId,
         UUID tenantId,
         String title,
-        String feedback   // mensaje opcional para el speaker
-) {}
+        String feedback // mensaje opcional para el speaker
+        ) {}

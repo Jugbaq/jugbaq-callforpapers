@@ -4,13 +4,12 @@ import com.jugbaq.cfp.events.domain.Event;
 import com.jugbaq.cfp.events.domain.EventRepository;
 import com.jugbaq.cfp.events.domain.EventStatus;
 import com.jugbaq.cfp.shared.tenant.TenantContext;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -38,21 +37,25 @@ public class EventService {
 
     @Transactional(readOnly = true)
     public List<Event> listCfpOpen() {
-        return repository.findByStatusOrderByEventDateDesc(EventStatus.CFP_OPEN)
-                .stream().filter(Event::isCfpOpen).toList();
+        return repository.findByStatusOrderByEventDateDesc(EventStatus.CFP_OPEN).stream()
+                .filter(Event::isCfpOpen)
+                .toList();
     }
 
     public Event updateStatus(UUID eventId, EventStatus newStatus) {
-        Event event = repository.findById(eventId)
-                .orElseThrow(() -> new IllegalArgumentException("Event not found"));
+        Event event = repository.findById(eventId).orElseThrow(() -> new IllegalArgumentException("Event not found"));
         event.transitionTo(newStatus);
         return event;
     }
 
-    public Event save(Event event) { return repository.save(event); }
+    public Event save(Event event) {
+        return repository.save(event);
+    }
 
     @Transactional(readOnly = true)
-    public Optional<Event> findById(UUID id) { return repository.findById(id); }
+    public Optional<Event> findById(UUID id) {
+        return repository.findById(id);
+    }
 
     @Transactional(readOnly = true)
     public Optional<Event> findBySlugWithDetails(String slug) {

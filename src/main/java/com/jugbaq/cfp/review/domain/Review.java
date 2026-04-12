@@ -9,13 +9,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.util.UUID;
 import org.hibernate.annotations.Filter;
 
-import java.util.UUID;
-
 @Entity
-@Table(name = "reviews",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"submission_id", "reviewer_id"}))
+@Table(name = "reviews", uniqueConstraints = @UniqueConstraint(columnNames = {"submission_id", "reviewer_id"}))
 @Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class Review extends BaseEntity implements TenantAwareEntity {
 
@@ -60,10 +58,28 @@ public class Review extends BaseEntity implements TenantAwareEntity {
         this.score = (short) score;
     }
 
-    public UUID getId() { return id; }
-    @Override public UUID getTenantId() { return tenantId; }
-    public UUID getSubmissionId() { return submissionId; }
-    public UUID getReviewerId() { return reviewerId; }
-    public int getScore() { return score; }
-    public String getComment() { return comment; }
+    public UUID getId() {
+        return id;
+    }
+
+    @Override
+    public UUID getTenantId() {
+        return tenantId;
+    }
+
+    public UUID getSubmissionId() {
+        return submissionId;
+    }
+
+    public UUID getReviewerId() {
+        return reviewerId;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public String getComment() {
+        return comment;
+    }
 }

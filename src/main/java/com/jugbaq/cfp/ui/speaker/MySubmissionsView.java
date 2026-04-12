@@ -19,7 +19,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -54,12 +53,9 @@ public class MySubmissionsView extends VerticalLayout {
                 .setAutoWidth(true)
                 .setFlexGrow(1);
 
-        grid.addColumn(s -> s.getEvent().getName())
-                .setHeader("Evento")
-                .setAutoWidth(true);
+        grid.addColumn(s -> s.getEvent().getName()).setHeader("Evento").setAutoWidth(true);
 
-        grid.addComponentColumn(this::buildStatusBadge)
-                .setHeader("Estado");
+        grid.addComponentColumn(this::buildStatusBadge).setHeader("Estado");
 
         grid.addColumn(s -> s.getFormat() != null ? s.getFormat().getName() : "—")
                 .setHeader("Formato");
@@ -69,9 +65,7 @@ public class MySubmissionsView extends VerticalLayout {
                         : "Borrador")
                 .setHeader("Enviado");
 
-        grid.addComponentColumn(this::buildActions)
-                .setHeader("Acciones")
-                .setAutoWidth(true);
+        grid.addComponentColumn(this::buildActions).setHeader("Acciones").setAutoWidth(true);
 
         grid.setSizeFull();
     }
@@ -102,8 +96,7 @@ public class MySubmissionsView extends VerticalLayout {
         }
 
         // Botón "Retirar" si no está en estado terminal
-        if (!submission.getStatus().isTerminal()
-                && submission.getStatus() != SubmissionStatus.UNDER_REVIEW) {
+        if (!submission.getStatus().isTerminal() && submission.getStatus() != SubmissionStatus.UNDER_REVIEW) {
             Button withdrawBtn = new Button("Retirar", e -> confirmWithdraw(submission));
             withdrawBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ERROR);
             actions.add(withdrawBtn);
@@ -128,8 +121,7 @@ public class MySubmissionsView extends VerticalLayout {
     private void confirmWithdraw(Submission submission) {
         ConfirmDialog dialog = new ConfirmDialog();
         dialog.setHeader("¿Retirar esta propuesta?");
-        dialog.setText("Vas a retirar '" + submission.getTitle() +
-                "'. Esta acción no se puede deshacer.");
+        dialog.setText("Vas a retirar '" + submission.getTitle() + "'. Esta acción no se puede deshacer.");
         dialog.setCancelable(true);
         dialog.setConfirmText("Sí, retirar");
         dialog.setConfirmButtonTheme("error primary");

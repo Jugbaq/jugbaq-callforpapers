@@ -6,10 +6,9 @@ import com.jugbaq.cfp.submissions.events.SubmissionAcceptedEvent;
 import com.jugbaq.cfp.submissions.events.SubmissionRejectedEvent;
 import com.jugbaq.cfp.submissions.events.SubmissionSubmittedEvent;
 import com.jugbaq.cfp.users.SpeakerSummary;
-import com.jugbaq.cfp.users.TenantRole;
 import com.jugbaq.cfp.users.UserQueryService;
-import com.jugbaq.cfp.users.domain.User;
-import com.jugbaq.cfp.users.domain.UserRepository;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,12 +17,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 /**
- * Listener placeholder. 
+ * Listener placeholder.
  * - Email al speaker confirmando recepción (vía Mailhog en dev)
  * - Email a los organizadores notificando nueva submission
  * - Registro en tabla 'notifications' para badge in-app
@@ -38,10 +33,11 @@ public class SubmissionNotificationListener {
     private final EmailService emailService;
     private final String baseUrl;
 
-    public SubmissionNotificationListener(UserQueryService userQueryService,
-                                          NotificationRepository notificationRepository,
-                                          EmailService emailService,
-                                          @Value("${cfp.base-url:http://localhost:8080}") String baseUrl) {
+    public SubmissionNotificationListener(
+            UserQueryService userQueryService,
+            NotificationRepository notificationRepository,
+            EmailService emailService,
+            @Value("${cfp.base-url:http://localhost:8080}") String baseUrl) {
         this.userQueryService = userQueryService;
         this.notificationRepository = notificationRepository;
         this.emailService = emailService;
@@ -67,19 +63,19 @@ public class SubmissionNotificationListener {
     private void notifySpeaker(SpeakerSummary speaker, SubmissionSubmittedEvent event) {
         Map<String, Object> payload = Map.of(
                 "submissionId", event.submissionId().toString(),
-                "title", event.title()
-        );
-        notificationRepository.save(new Notification(
-                speaker.id(), event.tenantId(),
-                NotificationType.SUBMISSION_RECEIVED, payload
-        ));
+                "title", event.title());
+        notificationRepository.save(
+                new Notification(speaker.id(), event.tenantId(), NotificationType.SUBMISSION_RECEIVED, payload));
 
         Map<String, String> vars = Map.of(
-                "speakerName", speaker.fullName(),
-                "title", event.title(),
-                "eventName", "JUGBAQ Meetup",
-                "baseUrl", baseUrl
-        );
+                "speakerName",
+                speaker.fullName(),
+                "title",
+                event.title(),
+                "eventName",
+                "JUGBAQ Meetup",
+                "baseUrl",
+                baseUrl);
         String subject = emailService.render(EmailTemplates.SUBMISSION_RECEIVED_SUBJECT, vars);
         String body = emailService.render(EmailTemplates.SUBMISSION_RECEIVED_BODY, vars);
         emailService.sendHtml(speaker.email(), subject, body);
@@ -92,20 +88,16 @@ public class SubmissionNotificationListener {
             Map<String, Object> payload = Map.of(
                     "submissionId", event.submissionId().toString(),
                     "title", event.title(),
-                    "speakerName", speaker.fullName()
-            );
+                    "speakerName", speaker.fullName());
             notificationRepository.save(new Notification(
-                    organizer.id(), event.tenantId(),
-                    NotificationType.SUBMISSION_NEW_FOR_REVIEW, payload
-            ));
+                    organizer.id(), event.tenantId(), NotificationType.SUBMISSION_NEW_FOR_REVIEW, payload));
 
             Map<String, String> vars = Map.of(
                     "organizerName", organizer.fullName(),
                     "speakerName", speaker.fullName(),
                     "title", event.title(),
                     "eventName", "JUGBAQ Meetup",
-                    "baseUrl", baseUrl
-            );
+                    "baseUrl", baseUrl);
             String subject = emailService.render(EmailTemplates.SUBMISSION_NEW_SUBJECT, vars);
             String body = emailService.render(EmailTemplates.SUBMISSION_NEW_BODY, vars);
             emailService.sendHtml(organizer.email(), subject, body);
@@ -117,27 +109,29 @@ public class SubmissionNotificationListener {
     @Transactional
     public void onSubmissionAccepted(SubmissionAcceptedEvent event) {
         log.info("Procesando notificación para submission {}", event.submissionId());
-        
+
         SpeakerSummary speaker = userQueryService.getSpeakerInfo(event.speakerId());
         if (speaker == null) return;
 
         notificationRepository.save(new Notification(
-                speaker.id(), event.tenantId(),
+                speaker.id(),
+                event.tenantId(),
                 NotificationType.SUBMISSION_ACCEPTED,
-                Map.of("submissionId", event.submissionId().toString(), "title", event.title())
-        ));
+                Map.of("submissionId", event.submissionId().toString(), "title", event.title())));
 
         Map<String, String> vars = Map.of(
-                "speakerName", speaker.fullName(),
-                "title", event.title(),
-                "eventName", "JUGBAQ Meetup",
-                "baseUrl", baseUrl
-        );
+                "speakerName",
+                speaker.fullName(),
+                "title",
+                event.title(),
+                "eventName",
+                "JUGBAQ Meetup",
+                "baseUrl",
+                baseUrl);
         emailService.sendHtml(
                 speaker.email(),
                 emailService.render(EmailTemplates.SUBMISSION_ACCEPTED_SUBJECT, vars),
-                emailService.render(EmailTemplates.SUBMISSION_ACCEPTED_BODY, vars)
-        );
+                emailService.render(EmailTemplates.SUBMISSION_ACCEPTED_BODY, vars));
     }
 
     @Async
@@ -148,28 +142,31 @@ public class SubmissionNotificationListener {
         if (speaker == null) return;
 
         notificationRepository.save(new Notification(
-                speaker.id(), event.tenantId(),
+                speaker.id(),
+                event.tenantId(),
                 NotificationType.SUBMISSION_REJECTED,
-                Map.of("submissionId", event.submissionId().toString(), "title", event.title())
-        ));
+                Map.of("submissionId", event.submissionId().toString(), "title", event.title())));
 
         String feedbackBlock = (event.feedback() != null && !event.feedback().isBlank())
                 ? "<div style='background:#f5f5f5;padding:16px;border-radius:6px;margin:16px 0;'>"
-                  + "<strong>Feedback de los organizadores:</strong><br>"
-                  + event.feedback() + "</div>"
+                        + "<strong>Feedback de los organizadores:</strong><br>"
+                        + event.feedback() + "</div>"
                 : "";
 
         Map<String, String> vars = Map.of(
-                "speakerName", speaker.fullName(),
-                "title", event.title(),
-                "eventName", "JUGBAQ Meetup",
-                "baseUrl", baseUrl,
-                "feedbackBlock", feedbackBlock
-        );
+                "speakerName",
+                speaker.fullName(),
+                "title",
+                event.title(),
+                "eventName",
+                "JUGBAQ Meetup",
+                "baseUrl",
+                baseUrl,
+                "feedbackBlock",
+                feedbackBlock);
         emailService.sendHtml(
                 speaker.email(),
                 emailService.render(EmailTemplates.SUBMISSION_REJECTED_SUBJECT, vars),
-                emailService.render(EmailTemplates.SUBMISSION_REJECTED_BODY, vars)
-        );
+                emailService.render(EmailTemplates.SUBMISSION_REJECTED_BODY, vars));
     }
 }

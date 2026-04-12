@@ -5,4 +5,3 @@ public class InvalidSubmissionTransitionException extends RuntimeException {
         super("Transición inválida: " + from + " → " + to);
     }
 }
-

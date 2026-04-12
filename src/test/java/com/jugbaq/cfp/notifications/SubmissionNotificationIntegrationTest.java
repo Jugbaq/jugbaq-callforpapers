@@ -1,5 +1,8 @@
 package com.jugbaq.cfp.notifications;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+
 import com.icegreen.greenmail.junit5.GreenMailExtension;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import com.jugbaq.cfp.TestcontainersConfiguration;
@@ -16,6 +19,9 @@ import com.jugbaq.cfp.users.UserRegistrationService;
 import com.jugbaq.cfp.users.domain.User;
 import com.jugbaq.cfp.users.domain.UserRepository;
 import jakarta.mail.internet.MimeMessage;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,13 +31,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-
-import java.time.Instant;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
 
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
@@ -46,13 +45,21 @@ class SubmissionNotificationIntegrationTest {
         registry.add("spring.mail.port", () -> ServerSetupTest.SMTP.getPort());
     }
 
-    @Autowired EventService eventService;
-    @Autowired SubmissionService submissionService;
-    @Autowired TenantRepository tenantRepository;
+    @Autowired
+    EventService eventService;
+
+    @Autowired
+    SubmissionService submissionService;
+
+    @Autowired
+    TenantRepository tenantRepository;
+
     @Autowired
     UserRepository userRepository;
+
     @Autowired
     NotificationRepository notificationRepository;
+
     @Autowired
     UserRegistrationService userRegistrationService;
 
@@ -72,18 +79,17 @@ class SubmissionNotificationIntegrationTest {
         // Arrange: speaker user
         // 1. Usamos el servicio, que YA le pone el rol de SPEAKER y lo guarda.
         User speaker = userRegistrationService.registerSpeaker(
-                "speaker.test." + UUID.randomUUID() + "@jugbaq.dev", // Sugiero añadir UUID por si acaso corres el test 2 veces
+                "speaker.test." + UUID.randomUUID()
+                        + "@jugbaq.dev", // Sugiero añadir UUID por si acaso corres el test 2 veces
                 "Test Speaker",
-                "pwd123"
-        );
+                "pwd123");
 
         // 2. Creamos el evento
         Event event = eventService.createEvent(
                 "notif-test-" + UUID.randomUUID(),
                 "Notification Test Event",
                 Instant.now().plusSeconds(86400 * 30),
-                UUID.fromString("a0000000-0000-0000-0000-000000000001")
-        );
+                UUID.fromString("a0000000-0000-0000-0000-000000000001"));
         eventService.updateStatus(event.getId(), EventStatus.CFP_OPEN);
 
         // 3. Preparamos la data

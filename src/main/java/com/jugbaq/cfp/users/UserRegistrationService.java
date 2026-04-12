@@ -14,9 +14,8 @@ public class UserRegistrationService {
     private final TenantRepository tenantRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserRegistrationService(UserRepository userRepository,
-                                   TenantRepository tenantRepository,
-                                   PasswordEncoder passwordEncoder) {
+    public UserRegistrationService(
+            UserRepository userRepository, TenantRepository tenantRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.tenantRepository = tenantRepository;
         this.passwordEncoder = passwordEncoder;
@@ -29,9 +28,7 @@ public class UserRegistrationService {
         user.setEmailVerified(false);
         user.initSpeakerProfile();
 
-        tenantRepository.findBySlug("jugbaq").ifPresent(tenant ->
-                user.assignRole(tenant, TenantRole.SPEAKER)
-        );
+        tenantRepository.findBySlug("jugbaq").ifPresent(tenant -> user.assignRole(tenant, TenantRole.SPEAKER));
 
         return userRepository.save(user);
     }

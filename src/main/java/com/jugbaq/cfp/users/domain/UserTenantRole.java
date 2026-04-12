@@ -12,7 +12,6 @@ import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
@@ -50,10 +49,21 @@ public class UserTenantRole {
         this.createdAt = Instant.now();
     }
 
-    public User getUser() { return user; }
-    public Tenant getTenant() { return tenant; }
-    public TenantRole getRole() { return role; }
-    public Instant getCreatedAt() { return createdAt; }
+    public User getUser() {
+        return user;
+    }
+
+    public Tenant getTenant() {
+        return tenant;
+    }
+
+    public TenantRole getRole() {
+        return role;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
 
     // --- Composite ID class ---
     public static class UserTenantRoleId implements Serializable {
@@ -73,9 +83,7 @@ public class UserTenantRole {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof UserTenantRoleId that)) return false;
-            return Objects.equals(user, that.user)
-                    && Objects.equals(tenant, that.tenant)
-                    && role == that.role;
+            return Objects.equals(user, that.user) && Objects.equals(tenant, that.tenant) && role == that.role;
         }
 
         @Override

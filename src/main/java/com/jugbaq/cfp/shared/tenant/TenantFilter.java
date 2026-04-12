@@ -1,22 +1,20 @@
 package com.jugbaq.cfp.shared.tenant;
 
 import com.jugbaq.cfp.shared.domain.TenantRepository;
-
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 10)
@@ -53,13 +51,14 @@ public class TenantFilter implements Filter {
     }
 
     private void resolveTenantBySlug(String slug) {
-        tenantRepository.findBySlug(slug).ifPresentOrElse(
-                tenant -> {
-                    TenantContext.set(tenant.getId(), tenant.getSlug());
-                    log.debug("Tenant resolved from URL: {} ({})", tenant.getName(), slug);
-                },
-                () -> log.warn("Unknown tenant slug: {}", slug)
-        );
+        tenantRepository
+                .findBySlug(slug)
+                .ifPresentOrElse(
+                        tenant -> {
+                            TenantContext.set(tenant.getId(), tenant.getSlug());
+                            log.debug("Tenant resolved from URL: {} ({})", tenant.getName(), slug);
+                        },
+                        () -> log.warn("Unknown tenant slug: {}", slug));
     }
 
     private void restoreTenantFromSession(HttpServletRequest request) {

@@ -1,13 +1,12 @@
 package com.jugbaq.cfp.users.security;
 
 import com.vaadin.flow.server.VaadinServletRequest;
+import java.util.Optional;
+import java.util.UUID;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
-import java.util.UUID;
 
 @Component
 public class SecurityUtils {
@@ -44,9 +43,6 @@ public class SecurityUtils {
 
     public void logout() {
         var logoutHandler = new SecurityContextLogoutHandler();
-        logoutHandler.logout(
-                VaadinServletRequest.getCurrent().getHttpServletRequest(),
-                null, null
-        );
+        logoutHandler.logout(VaadinServletRequest.getCurrent().getHttpServletRequest(), null, null);
     }
 }

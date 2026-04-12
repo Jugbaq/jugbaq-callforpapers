@@ -20,14 +20,13 @@ public class TenantHibernateInterceptor {
         this.entityManager = entityManager;
     }
 
-    @Before("execution(* com.jugbaq.cfp..*.find*(..)) || " +
-            "execution(* org.springframework.data.jpa.repository.JpaRepository+.*(..))")
+    @Before("execution(* com.jugbaq.cfp..*.find*(..)) || "
+            + "execution(* org.springframework.data.jpa.repository.JpaRepository+.*(..))")
     public void enableTenantFilter() {
         TenantContext.getTenantId().ifPresent(tenantId -> {
             Session session = entityManager.unwrap(Session.class);
             if (session.getEnabledFilter("tenantFilter") == null) {
-                session.enableFilter("tenantFilter")
-                        .setParameter("tenantId", tenantId);
+                session.enableFilter("tenantFilter").setParameter("tenantId", tenantId);
                 log.trace("Hibernate tenant filter enabled for tenant: {}", tenantId);
             }
         });

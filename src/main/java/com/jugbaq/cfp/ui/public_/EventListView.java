@@ -42,17 +42,13 @@ public class EventListView extends VerticalLayout {
                 LumoUtility.Background.CONTRAST_5,
                 LumoUtility.BorderRadius.MEDIUM,
                 LumoUtility.Padding.MEDIUM,
-                LumoUtility.Margin.Vertical.SMALL
-        );
+                LumoUtility.Margin.Vertical.SMALL);
         card.add(new H3(event.getName()));
         if (event.getTagline() != null) card.add(new Paragraph(event.getTagline()));
         card.add(new Paragraph("Estado: " + event.getStatus()));
         card.add(new Paragraph("Fecha: " + event.getEventDate()));
         if (event.isCfpOpen()) {
-            Anchor submit = new Anchor(
-                    "/t/jugbaq/submit/" + event.getSlug(),
-                    "→ Enviar propuesta"
-            );
+            Anchor submit = new Anchor("/t/jugbaq/submit/" + event.getSlug(), "→ Enviar propuesta");
             card.add(submit);
         }
         return card;

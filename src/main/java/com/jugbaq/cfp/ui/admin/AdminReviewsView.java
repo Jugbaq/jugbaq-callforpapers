@@ -5,8 +5,6 @@ import com.jugbaq.cfp.events.domain.Event;
 import com.jugbaq.cfp.review.DiscussionMessage;
 import com.jugbaq.cfp.review.ReviewService;
 import com.jugbaq.cfp.review.ReviewSummary;
-import com.jugbaq.cfp.review.domain.Review;
-import com.jugbaq.cfp.review.domain.ReviewDiscussion;
 import com.jugbaq.cfp.submissions.SubmissionService;
 import com.jugbaq.cfp.submissions.domain.Submission;
 import com.jugbaq.cfp.submissions.domain.SubmissionStatus;
@@ -37,7 +35,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.RolesAllowed;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -60,11 +57,12 @@ public class AdminReviewsView extends VerticalLayout {
 
     private final UserQueryService userQueryService;
 
-    public AdminReviewsView(SubmissionService submissionService,
-                            ReviewService reviewService,
-                            EventService eventService,
-                            SecurityUtils securityUtils,
-                            UserQueryService userQueryService) {
+    public AdminReviewsView(
+            SubmissionService submissionService,
+            ReviewService reviewService,
+            EventService eventService,
+            SecurityUtils securityUtils,
+            UserQueryService userQueryService) {
         this.submissionService = submissionService;
         this.reviewService = reviewService;
         this.eventService = eventService;
@@ -102,8 +100,7 @@ public class AdminReviewsView extends VerticalLayout {
                 SubmissionStatus.SUBMITTED,
                 SubmissionStatus.UNDER_REVIEW,
                 SubmissionStatus.ACCEPTED,
-                SubmissionStatus.REJECTED
-        );
+                SubmissionStatus.REJECTED);
         statusFilter.setItemLabelGenerator(s -> s == null ? "Todos" : s.name());
         statusFilter.setEmptySelectionAllowed(true);
         statusFilter.setEmptySelectionCaption("Todos");
@@ -119,9 +116,11 @@ public class AdminReviewsView extends VerticalLayout {
         grid.addColumn(s -> s.getEvent().getName()).setHeader("Evento").setAutoWidth(true);
         grid.addComponentColumn(this::buildStatusBadge).setHeader("Estado").setAutoWidth(true);
         grid.addColumn(s -> {
-            Double avg = reviewService.averageScore(s.getId()).orElse(null);
-            return avg == null ? "—" : String.format("%.1f ⭐", avg);
-        }).setHeader("Promedio").setAutoWidth(true);
+                    Double avg = reviewService.averageScore(s.getId()).orElse(null);
+                    return avg == null ? "—" : String.format("%.1f ⭐", avg);
+                })
+                .setHeader("Promedio")
+                .setAutoWidth(true);
 
         grid.addSelectionListener(e -> e.getFirstSelectedItem().ifPresent(this::selectSubmission));
         grid.setSizeFull();
@@ -168,8 +167,7 @@ public class AdminReviewsView extends VerticalLayout {
         if (submission.getPitch() != null && !submission.getPitch().isBlank()) {
             detailPanel.add(new H4("Pitch (privado)"));
             Paragraph pitchP = new Paragraph(submission.getPitch());
-            pitchP.getStyle().set("white-space", "pre-wrap")
-                    .set("color", "var(--lumo-secondary-text-color)");
+            pitchP.getStyle().set("white-space", "pre-wrap").set("color", "var(--lumo-secondary-text-color)");
             detailPanel.add(pitchP);
         }
 
@@ -229,8 +227,7 @@ public class AdminReviewsView extends VerticalLayout {
 
         Double avg = reviewService.averageScore(submission.getId()).orElse(null);
         if (avg != null) {
-            Paragraph avgP = new Paragraph(String.format("Promedio: %.2f ⭐ (%d reviews)",
-                    avg, reviews.size()));
+            Paragraph avgP = new Paragraph(String.format("Promedio: %.2f ⭐ (%d reviews)", avg, reviews.size()));
             avgP.getStyle().set("font-weight", "bold");
             detailPanel.add(avgP);
         }
@@ -238,16 +235,12 @@ public class AdminReviewsView extends VerticalLayout {
         for (ReviewSummary r : reviews) {
             Div card = new Div();
             card.addClassNames(
-                    LumoUtility.Padding.SMALL,
-                    LumoUtility.BorderRadius.MEDIUM,
-                    LumoUtility.Margin.Vertical.XSMALL
-            );
+                    LumoUtility.Padding.SMALL, LumoUtility.BorderRadius.MEDIUM, LumoUtility.Margin.Vertical.XSMALL);
             card.getStyle().set("border", "1px solid var(--lumo-contrast-10pct)");
             card.add(new Span("⭐".repeat(r.score()) + " (" + r.score() + "/5)"));
             if (r.comment() != null && !r.comment().isBlank()) {
                 Paragraph commentP = new Paragraph(r.comment());
-                commentP.getStyle().set("margin", "4px 0 0 0")
-                        .set("font-size", "var(--lumo-font-size-s)");
+                commentP.getStyle().set("margin", "4px 0 0 0").set("font-size", "var(--lumo-font-size-s)");
                 card.add(commentP);
             }
             detailPanel.add(card);
@@ -270,14 +263,12 @@ public class AdminReviewsView extends VerticalLayout {
                         LumoUtility.Padding.SMALL,
                         LumoUtility.BorderRadius.MEDIUM,
                         LumoUtility.Margin.Vertical.XSMALL,
-                        LumoUtility.Background.CONTRAST_5
-                );
+                        LumoUtility.Background.CONTRAST_5);
 
                 String authorName = userQueryService.getSpeakerFullName(msg.authorId());
                 Span author = new Span(authorName);
 
-                author.getStyle().set("font-weight", "bold")
-                        .set("font-size", "var(--lumo-font-size-xs)");
+                author.getStyle().set("font-weight", "bold").set("font-size", "var(--lumo-font-size-xs)");
                 Paragraph body = new Paragraph(msg.message());
                 body.getStyle().set("margin", "2px 0 0 0");
                 bubble.add(author, body);
@@ -335,9 +326,7 @@ public class AdminReviewsView extends VerticalLayout {
         Button save = new Button("Guardar", e -> {
             try {
                 reviewService.submitOrUpdateScore(
-                        submission.getId(), reviewerId,
-                        scoreField.getValue(), commentField.getValue()
-                );
+                        submission.getId(), reviewerId, scoreField.getValue(), commentField.getValue());
                 showSuccess("Review guardada");
                 dialog.close();
                 refresh();
@@ -356,8 +345,8 @@ public class AdminReviewsView extends VerticalLayout {
     private void confirmAccept(Submission submission) {
         ConfirmDialog dialog = new ConfirmDialog();
         dialog.setHeader("¿Aceptar propuesta?");
-        dialog.setText("Vas a aceptar '" + submission.getTitle() +
-                "'. Se enviará un email de confirmación al speaker.");
+        dialog.setText(
+                "Vas a aceptar '" + submission.getTitle() + "'. Se enviará un email de confirmación al speaker.");
         dialog.setCancelable(true);
         dialog.setConfirmText("Sí, aceptar");
         dialog.setConfirmButtonTheme("success primary");
@@ -378,8 +367,7 @@ public class AdminReviewsView extends VerticalLayout {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Rechazar propuesta");
 
-        Paragraph info = new Paragraph(
-                "El feedback es opcional pero recomendado. Lo recibirá el speaker por email.");
+        Paragraph info = new Paragraph("El feedback es opcional pero recomendado. Lo recibirá el speaker por email.");
         info.getStyle().set("color", "var(--lumo-secondary-text-color)");
 
         TextArea feedbackField = new TextArea("Feedback para el speaker (opcional)");
@@ -420,7 +408,6 @@ public class AdminReviewsView extends VerticalLayout {
     }
 
     private void showError(String msg) {
-        Notification.show(msg, 4000, Notification.Position.TOP_CENTER)
-                .addThemeVariants(NotificationVariant.LUMO_ERROR);
+        Notification.show(msg, 4000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
 }

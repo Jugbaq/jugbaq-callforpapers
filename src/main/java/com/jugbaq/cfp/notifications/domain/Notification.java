@@ -10,13 +10,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "notifications")
@@ -58,12 +57,31 @@ public class Notification extends BaseEntity {
         }
     }
 
-    public boolean isRead() { return readAt != null; }
+    public boolean isRead() {
+        return readAt != null;
+    }
 
-    public UUID getId() { return id; }
-    public UUID getUserId() { return userId; }
-    public UUID getTenantId() { return tenantId; }
-    public NotificationType getType() { return type; }
-    public Map<String, Object> getPayload() { return payload; }
-    public Instant getReadAt() { return readAt; }
+    public UUID getId() {
+        return id;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public UUID getTenantId() {
+        return tenantId;
+    }
+
+    public NotificationType getType() {
+        return type;
+    }
+
+    public Map<String, Object> getPayload() {
+        return payload;
+    }
+
+    public Instant getReadAt() {
+        return readAt;
+    }
 }

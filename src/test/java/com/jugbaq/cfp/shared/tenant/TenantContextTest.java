@@ -1,11 +1,11 @@
 package com.jugbaq.cfp.shared.tenant;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-import java.util.UUID;
-
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+
+import java.util.UUID;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 class TenantContextTest {
 
@@ -44,4 +44,3 @@ class TenantContextTest {
         assertThat(TenantContext.getTenantId()).isEmpty();
     }
 }
-

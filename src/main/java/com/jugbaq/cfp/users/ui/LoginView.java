@@ -50,23 +50,17 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
                 LumoUtility.Display.FLEX,
                 LumoUtility.FlexDirection.COLUMN,
                 LumoUtility.Gap.SMALL,
-                LumoUtility.AlignItems.CENTER
-        );
+                LumoUtility.AlignItems.CENTER);
 
         Paragraph separator = new Paragraph("— o continúa con —");
-        separator.getStyle()
+        separator
+                .getStyle()
                 .set("color", "var(--lumo-secondary-text-color)")
                 .set("font-size", "var(--lumo-font-size-s)");
 
-        Anchor googleBtn = createOAuthButton(
-                "/oauth2/authorization/google",
-                "Continuar con Google"
-        );
+        Anchor googleBtn = createOAuthButton("/oauth2/authorization/google", "Continuar con Google");
 
-        Anchor githubBtn = createOAuthButton(
-                "/oauth2/authorization/github",
-                "Continuar con GitHub"
-        );
+        Anchor githubBtn = createOAuthButton("/oauth2/authorization/github", "Continuar con GitHub");
 
         section.add(separator, googleBtn, githubBtn);
         return section;
@@ -92,8 +86,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if (event.getLocation().getQueryParameters().getParameters()
-                .containsKey("error")) {
+        if (event.getLocation().getQueryParameters().getParameters().containsKey("error")) {
             loginForm.setError(true);
         }
     }

@@ -19,7 +19,6 @@ import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-
 import java.util.Optional;
 
 @Layout
@@ -48,10 +47,7 @@ public class MainLayout extends AppLayout {
         header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         header.expand(logo);
         header.setWidthFull();
-        header.addClassNames(
-                LumoUtility.Padding.Vertical.NONE,
-                LumoUtility.Padding.Horizontal.MEDIUM
-        );
+        header.addClassNames(LumoUtility.Padding.Vertical.NONE, LumoUtility.Padding.Horizontal.MEDIUM);
 
         // Auth section en el header
         Optional<CfpUserDetails> user = securityUtils.getAuthenticatedUser();
@@ -66,9 +62,7 @@ public class MainLayout extends AppLayout {
             if (unread > 0) {
                 notifBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             }
-            notifBtn.addClickListener(e ->
-                    notifBtn.getUI().ifPresent(ui -> ui.navigate("t/jugbaq/notifications"))
-            );
+            notifBtn.addClickListener(e -> notifBtn.getUI().ifPresent(ui -> ui.navigate("t/jugbaq/notifications")));
 
             Button logoutBtn = new Button("Salir", event -> securityUtils.logout());
             logoutBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
@@ -96,10 +90,7 @@ public class MainLayout extends AppLayout {
         Optional<CfpUserDetails> user = securityUtils.getAuthenticatedUser();
         if (user.isPresent()) {
             // Sección Speaker (todos los autenticados)
-            drawerContent.add(
-                    createSectionHeader("Speaker"),
-                    createSpeakerNav()
-            );
+            drawerContent.add(createSectionHeader("Speaker"), createSpeakerNav());
 
             // Sección Organizador (solo ORGANIZER y ADMIN)
             boolean isOrganizer = user.get().getAuthorities().stream()
@@ -107,10 +98,7 @@ public class MainLayout extends AppLayout {
                             || a.getAuthority().equals("ROLE_ADMIN"));
 
             if (isOrganizer) {
-                drawerContent.add(
-                        createSectionHeader("Organizador"),
-                        createOrganizerNav()
-                );
+                drawerContent.add(createSectionHeader("Organizador"), createOrganizerNav());
             }
         }
 
@@ -123,8 +111,7 @@ public class MainLayout extends AppLayout {
                 LumoUtility.FontSize.XSMALL,
                 LumoUtility.Margin.Top.MEDIUM,
                 LumoUtility.Margin.Bottom.XSMALL,
-                LumoUtility.Padding.Horizontal.MEDIUM
-        );
+                LumoUtility.Padding.Horizontal.MEDIUM);
         header.getStyle().set("color", "var(--lumo-secondary-text-color)");
         return header;
     }

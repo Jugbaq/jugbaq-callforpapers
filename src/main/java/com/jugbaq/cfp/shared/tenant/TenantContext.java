@@ -24,8 +24,7 @@ public final class TenantContext {
     }
 
     public static UUID requireTenantId() {
-        return getTenantId()
-                .orElseThrow(() -> new TenantNotResolvedException("No tenant in context"));
+        return getTenantId().orElseThrow(() -> new TenantNotResolvedException("No tenant in context"));
     }
 
     public static Optional<String> getTenantSlug() {

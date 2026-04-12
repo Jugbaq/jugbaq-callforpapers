@@ -9,7 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
 import java.util.UUID;
 
 @Entity
@@ -30,12 +29,30 @@ public class EventSessionFormat {
     private int durationMinutes;
 
     protected EventSessionFormat() {}
+
     public EventSessionFormat(Event event, String name, int duration) {
-        this.event = event; this.name = name; this.durationMinutes = duration;
+        this.event = event;
+        this.name = name;
+        this.durationMinutes = duration;
     }
-    public UUID getId() { return id; }
-    public String getName() { return name; }
-    public void setName(String n) { this.name = n; }
-    public int getDurationMinutes() { return durationMinutes; }
-    public void setDurationMinutes(int d) { this.durationMinutes = d; }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String n) {
+        this.name = n;
+    }
+
+    public int getDurationMinutes() {
+        return durationMinutes;
+    }
+
+    public void setDurationMinutes(int d) {
+        this.durationMinutes = d;
+    }
 }

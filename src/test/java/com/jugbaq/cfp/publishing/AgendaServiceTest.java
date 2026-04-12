@@ -1,5 +1,8 @@
 package com.jugbaq.cfp.publishing;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import com.jugbaq.cfp.TestcontainersConfiguration;
 import com.jugbaq.cfp.events.EventService;
 import com.jugbaq.cfp.events.domain.Event;
@@ -16,6 +19,9 @@ import com.jugbaq.cfp.submissions.domain.Submission;
 import com.jugbaq.cfp.submissions.domain.SubmissionLevel;
 import com.jugbaq.cfp.users.UserRegistrationService;
 import com.jugbaq.cfp.users.domain.User;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,13 +30,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
 @Transactional
@@ -38,12 +37,16 @@ class AgendaServiceTest {
 
     @Autowired
     AgendaService agendaService;
+
     @Autowired
     EventService eventService;
+
     @Autowired
     SubmissionService submissionService;
+
     @Autowired
     ReviewService reviewService;
+
     @Autowired
     TenantRepository tenantRepository;
 
@@ -63,8 +66,7 @@ class AgendaServiceTest {
         TenantContext.set(tenant.getId(), "jugbaq");
 
         event = eventService.createEvent(
-                "agenda-" + UUID.randomUUID(), "Agenda Test",
-                Instant.now().plus(30, ChronoUnit.DAYS), ADMIN_ID);
+                "agenda-" + UUID.randomUUID(), "Agenda Test", Instant.now().plus(30, ChronoUnit.DAYS), ADMIN_ID);
         eventService.updateStatus(event.getId(), EventStatus.CFP_OPEN);
 
         // --- CAMBIO AQUÍ: Creamos usuarios de verdad en la base de datos ---
@@ -82,15 +84,20 @@ class AgendaServiceTest {
     }
 
     @AfterEach
-    void cleanup() { TenantContext.clear(); }
+    void cleanup() {
+        TenantContext.clear();
+    }
 
     @Test
     void should_create_slot_for_accepted_submission() {
         Instant start = Instant.now().plus(30, ChronoUnit.DAYS);
         AgendaSlot slot = agendaService.saveSlot(
-                event.getId(), accepted1.getId(),
+                event.getId(),
+                accepted1.getId(),
                 event.getTracks().get(0).getId(),
-                start, start.plus(30, ChronoUnit.MINUTES), null);
+                start,
+                start.plus(30, ChronoUnit.MINUTES),
+                null);
 
         assertThat(slot.getId()).isNotNull();
         assertThat(slot.getSubmission().getId()).isEqualTo(accepted1.getId());
@@ -108,9 +115,12 @@ class AgendaServiceTest {
 
         Instant start = Instant.now().plus(30, ChronoUnit.DAYS);
         assertThatThrownBy(() -> agendaService.saveSlot(
-                event.getId(), draft.getId(),
-                event.getTracks().get(0).getId(),
-                start, start.plus(30, ChronoUnit.MINUTES), null))
+                        event.getId(),
+                        draft.getId(),
+                        event.getTracks().get(0).getId(),
+                        start,
+                        start.plus(30, ChronoUnit.MINUTES),
+                        null))
                 .isInstanceOf(AgendaConflictException.class)
                 .hasMessageContaining("ACCEPTED");
     }
@@ -120,12 +130,16 @@ class AgendaServiceTest {
         UUID trackId = event.getTracks().get(0).getId();
         Instant start = Instant.now().plus(30, ChronoUnit.DAYS);
 
-        agendaService.saveSlot(event.getId(), accepted1.getId(), trackId,
-                start, start.plus(30, ChronoUnit.MINUTES), null);
+        agendaService.saveSlot(
+                event.getId(), accepted1.getId(), trackId, start, start.plus(30, ChronoUnit.MINUTES), null);
 
         assertThatThrownBy(() -> agendaService.saveSlot(
-                event.getId(), accepted2.getId(), trackId,
-                start.plus(10, ChronoUnit.MINUTES), start.plus(40, ChronoUnit.MINUTES), null))
+                        event.getId(),
+                        accepted2.getId(),
+                        trackId,
+                        start.plus(10, ChronoUnit.MINUTES),
+                        start.plus(40, ChronoUnit.MINUTES),
+                        null))
                 .isInstanceOf(AgendaConflictException.class)
                 .hasMessageContaining("track");
     }
@@ -136,12 +150,11 @@ class AgendaServiceTest {
         UUID trackA = event.getTracks().get(0).getId();
         Instant start = Instant.now().plus(30, ChronoUnit.DAYS);
 
-        agendaService.saveSlot(event.getId(), accepted1.getId(), trackA,
-                start, start.plus(30, ChronoUnit.MINUTES), null);
+        agendaService.saveSlot(
+                event.getId(), accepted1.getId(), trackA, start, start.plus(30, ChronoUnit.MINUTES), null);
 
         assertThatThrownBy(() -> agendaService.saveSlot(
-                event.getId(), accepted3.getId(), trackA,
-                start, start.plus(30, ChronoUnit.MINUTES), null))
+                        event.getId(), accepted3.getId(), trackA, start, start.plus(30, ChronoUnit.MINUTES), null))
                 .isInstanceOf(AgendaConflictException.class);
     }
 
@@ -150,12 +163,16 @@ class AgendaServiceTest {
         UUID trackId = event.getTracks().get(0).getId();
         Instant start = Instant.now().plus(30, ChronoUnit.DAYS);
 
-        agendaService.saveSlot(event.getId(), accepted1.getId(), trackId,
-                start, start.plus(30, ChronoUnit.MINUTES), null);
+        agendaService.saveSlot(
+                event.getId(), accepted1.getId(), trackId, start, start.plus(30, ChronoUnit.MINUTES), null);
 
         AgendaSlot next = agendaService.saveSlot(
-                event.getId(), accepted2.getId(), trackId,
-                start.plus(31, ChronoUnit.MINUTES), start.plus(60, ChronoUnit.MINUTES), null);
+                event.getId(),
+                accepted2.getId(),
+                trackId,
+                start.plus(31, ChronoUnit.MINUTES),
+                start.plus(60, ChronoUnit.MINUTES),
+                null);
 
         assertThat(next.getId()).isNotNull();
     }
@@ -165,10 +182,15 @@ class AgendaServiceTest {
         UUID trackId = event.getTracks().get(0).getId();
         Instant start = Instant.now().plus(30, ChronoUnit.DAYS);
 
-        agendaService.saveSlot(event.getId(), accepted1.getId(), trackId,
-                start, start.plus(30, ChronoUnit.MINUTES), null);
-        agendaService.saveSlot(event.getId(), accepted2.getId(), trackId,
-                start.plus(31, ChronoUnit.MINUTES), start.plus(60, ChronoUnit.MINUTES), null);
+        agendaService.saveSlot(
+                event.getId(), accepted1.getId(), trackId, start, start.plus(30, ChronoUnit.MINUTES), null);
+        agendaService.saveSlot(
+                event.getId(),
+                accepted2.getId(),
+                trackId,
+                start.plus(31, ChronoUnit.MINUTES),
+                start.plus(60, ChronoUnit.MINUTES),
+                null);
 
         eventService.updateStatus(event.getId(), EventStatus.CFP_CLOSED);
         eventService.updateStatus(event.getId(), EventStatus.REVIEW);
@@ -185,8 +207,8 @@ class AgendaServiceTest {
         Instant start = Instant.now().plus(30, ChronoUnit.DAYS);
 
         // Solo asigna 1 de 2 aceptadas
-        agendaService.saveSlot(event.getId(), accepted1.getId(), trackId,
-                start, start.plus(30, ChronoUnit.MINUTES), null);
+        agendaService.saveSlot(
+                event.getId(), accepted1.getId(), trackId, start, start.plus(30, ChronoUnit.MINUTES), null);
 
         eventService.updateStatus(event.getId(), EventStatus.CFP_CLOSED);
         eventService.updateStatus(event.getId(), EventStatus.REVIEW);
@@ -201,8 +223,8 @@ class AgendaServiceTest {
         UUID trackId = event.getTracks().get(0).getId();
         Instant start = Instant.parse("2026-05-15T19:00:00Z");
 
-        agendaService.saveSlot(event.getId(), accepted1.getId(), trackId,
-                start, start.plus(30, ChronoUnit.MINUTES), null);
+        agendaService.saveSlot(
+                event.getId(), accepted1.getId(), trackId, start, start.plus(30, ChronoUnit.MINUTES), null);
 
         var slots = agendaService.listForEvent(event.getId());
         String ical = ICalGenerator.generate(event, slots);

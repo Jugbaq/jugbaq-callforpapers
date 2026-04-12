@@ -2,7 +2,6 @@ package com.jugbaq.cfp.publishing;
 
 import com.jugbaq.cfp.events.domain.Event;
 import com.jugbaq.cfp.publishing.domain.AgendaSlot;
-
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -38,7 +37,9 @@ public final class ICalGenerator {
                         .append("\r\n");
             }
             if (slot.getTrack() != null) {
-                sb.append("CATEGORIES:").append(escape(slot.getTrack().getName())).append("\r\n");
+                sb.append("CATEGORIES:")
+                        .append(escape(slot.getTrack().getName()))
+                        .append("\r\n");
             }
             if (event.getLocation() != null) {
                 sb.append("LOCATION:").append(escape(event.getLocation())).append("\r\n");
@@ -52,8 +53,7 @@ public final class ICalGenerator {
 
     private static String escape(String text) {
         if (text == null) return "";
-        return text
-                .replace("\\", "\\\\")
+        return text.replace("\\", "\\\\")
                 .replace(",", "\\,")
                 .replace(";", "\\;")
                 .replace("\n", "\\n");

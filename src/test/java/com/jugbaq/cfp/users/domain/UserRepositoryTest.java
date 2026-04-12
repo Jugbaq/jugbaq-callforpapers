@@ -1,6 +1,8 @@
 package com.jugbaq.cfp.users.domain;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
+import com.jugbaq.cfp.TestcontainersConfiguration;
 import com.jugbaq.cfp.shared.domain.Tenant;
 import com.jugbaq.cfp.shared.domain.TenantRepository;
 import com.jugbaq.cfp.users.TenantRole;
@@ -10,17 +12,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import com.jugbaq.cfp.TestcontainersConfiguration;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(TestcontainersConfiguration.class)
 class UserRepositoryTest {
 
-    @Autowired UserRepository userRepository;
-    @Autowired TenantRepository tenantRepository;
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    TenantRepository tenantRepository;
 
     private Tenant jugbaq;
 
@@ -58,7 +60,8 @@ class UserRepositoryTest {
         user.assignRole(jugbaq, TenantRole.ORGANIZER);
         userRepository.save(user);
 
-        User found = userRepository.findByEmailIgnoreCase("test_admin@jugbaq.dev").orElseThrow();
+        User found =
+                userRepository.findByEmailIgnoreCase("test_admin@jugbaq.dev").orElseThrow();
         assertThat(found.getTenantRoles()).hasSize(2);
         assertThat(found.hasRole(jugbaq.getId(), TenantRole.ADMIN)).isTrue();
         assertThat(found.hasRole(jugbaq.getId(), TenantRole.SPEAKER)).isFalse();

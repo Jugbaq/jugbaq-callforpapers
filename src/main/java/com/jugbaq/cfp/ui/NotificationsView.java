@@ -2,7 +2,6 @@ package com.jugbaq.cfp.ui;
 
 import com.jugbaq.cfp.notifications.NotificationService;
 import com.jugbaq.cfp.notifications.NotificationSummary;
-import com.jugbaq.cfp.notifications.domain.Notification;
 import com.jugbaq.cfp.ui.layout.MainLayout;
 import com.jugbaq.cfp.users.security.SecurityUtils;
 import com.vaadin.flow.component.button.Button;
@@ -17,7 +16,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-
 import java.util.UUID;
 
 @Route(value = "t/:tenantSlug/notifications", layout = MainLayout.class)
@@ -72,21 +70,21 @@ public class NotificationsView extends VerticalLayout {
     private Div buildItem(NotificationSummary n) {
         Div item = new Div();
         item.addClassNames(
-                LumoUtility.Padding.MEDIUM,
-                LumoUtility.BorderRadius.MEDIUM,
-                LumoUtility.Margin.Vertical.XSMALL
-        );
+                LumoUtility.Padding.MEDIUM, LumoUtility.BorderRadius.MEDIUM, LumoUtility.Margin.Vertical.XSMALL);
         item.getStyle().set("border", "1px solid var(--lumo-contrast-10pct)");
         if (!n.isRead()) {
             item.getStyle().set("background", "var(--lumo-primary-color-10pct)");
         }
 
-        String title = switch (n.type()) {
-            case SUBMISSION_RECEIVED -> "Propuesta recibida: " + n.payload().get("title");
-            case SUBMISSION_NEW_FOR_REVIEW -> "Nueva propuesta para revisar: " + n.payload().get("title");
-            case SUBMISSION_ACCEPTED -> "Tu propuesta fue aceptada";
-            case SUBMISSION_REJECTED -> "Propuesta no seleccionada";
-        };
+        String title =
+                switch (n.type()) {
+                    case SUBMISSION_RECEIVED -> "Propuesta recibida: "
+                            + n.payload().get("title");
+                    case SUBMISSION_NEW_FOR_REVIEW -> "Nueva propuesta para revisar: "
+                            + n.payload().get("title");
+                    case SUBMISSION_ACCEPTED -> "Tu propuesta fue aceptada";
+                    case SUBMISSION_REJECTED -> "Propuesta no seleccionada";
+                };
 
         item.add(new H3(title));
         item.add(new Paragraph(n.createdAt().toString().substring(0, 16).replace("T", " ")));

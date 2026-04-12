@@ -9,13 +9,12 @@ import com.jugbaq.cfp.submissions.domain.SubmissionLimitExceededException;
 import com.jugbaq.cfp.submissions.domain.SubmissionRepository;
 import com.jugbaq.cfp.submissions.domain.SubmissionStatus;
 import com.jugbaq.cfp.submissions.events.SubmissionSubmittedEvent;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -25,9 +24,10 @@ public class SubmissionService {
     private final EventRepository eventRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public SubmissionService(SubmissionRepository repository,
-                             EventRepository eventRepository,
-                             ApplicationEventPublisher eventPublisher) {
+    public SubmissionService(
+            SubmissionRepository repository,
+            EventRepository eventRepository,
+            ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
         this.eventRepository = eventRepository;
         this.eventPublisher = eventPublisher;
@@ -38,26 +38,25 @@ public class SubmissionService {
      * Valida que el CFP esté abierto y que el speaker no haya excedido el límite.
      */
     public Submission createDraft(UUID eventId, UUID speakerId, SubmissionData data) {
-        Event event = eventRepository.findById(eventId)
+        Event event = eventRepository
+                .findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado"));
 
         if (!event.isCfpOpen()) {
             throw new CfpClosedException(event.getName());
         }
 
-        long activeCount = repository.countByEventIdAndSpeakerIdAndStatusNot(
-                eventId, speakerId, SubmissionStatus.WITHDRAWN);
+        long activeCount =
+                repository.countByEventIdAndSpeakerIdAndStatusNot(eventId, speakerId, SubmissionStatus.WITHDRAWN);
 
         if (activeCount >= event.getMaxSubmissionsPerSpeaker()) {
             throw new SubmissionLimitExceededException(event.getMaxSubmissionsPerSpeaker());
         }
 
         UUID tenantId = TenantContext.requireTenantId();
-        Submission submission = new Submission(
-                tenantId, event, speakerId, data.getTitle(), data.getAbstractText());
+        Submission submission = new Submission(tenantId, event, speakerId, data.getTitle(), data.getAbstractText());
         submission.updateContent(
-                data.getTitle(), data.getAbstractText(), data.getPitch(),
-                data.getLevel(), data.getTags());
+                data.getTitle(), data.getAbstractText(), data.getPitch(), data.getLevel(), data.getTags());
 
         applyFormatAndTrack(submission, event, data);
         return repository.save(submission);
@@ -78,8 +77,7 @@ public class SubmissionService {
                 submission.getSpeakerId(),
                 submission.getTenantId(),
                 submission.getTitle(),
-                submission.getSubmittedAt()
-        ));
+                submission.getSubmittedAt()));
 
         return submission;
     }
@@ -95,8 +93,7 @@ public class SubmissionService {
     public Submission updateDraft(UUID submissionId, UUID speakerId, SubmissionData data) {
         Submission submission = loadOwned(submissionId, speakerId);
         submission.updateContent(
-                data.getTitle(), data.getAbstractText(), data.getPitch(),
-                data.getLevel(), data.getTags());
+                data.getTitle(), data.getAbstractText(), data.getPitch(), data.getLevel(), data.getTags());
         applyFormatAndTrack(submission, submission.getEvent(), data);
         return repository.save(submission);
     }
@@ -120,7 +117,8 @@ public class SubmissionService {
     // --- Privados ---
 
     private Submission loadOwned(UUID submissionId, UUID speakerId) {
-        Submission submission = repository.findById(submissionId)
+        Submission submission = repository
+                .findById(submissionId)
                 .orElseThrow(() -> new IllegalArgumentException("Propuesta no encontrada"));
         submission.assertOwnedBy(speakerId);
         return submission;
@@ -143,8 +141,7 @@ public class SubmissionService {
 
     @Transactional(readOnly = true)
     public long countActiveSubmissionsBySpeaker(UUID eventId, UUID speakerId) {
-        return repository.countByEventIdAndSpeakerIdAndStatusNot(
-                eventId, speakerId, SubmissionStatus.WITHDRAWN);
+        return repository.countByEventIdAndSpeakerIdAndStatusNot(eventId, speakerId, SubmissionStatus.WITHDRAWN);
     }
 
     @Transactional(readOnly = true)
@@ -155,12 +152,11 @@ public class SubmissionService {
         if (eventId != null) {
             return repository.findByEventIdOrderByCreatedAtDesc(eventId);
         }
-        
+
         return repository.findByStatusInOrderByCreatedAtDesc(List.of(
                 SubmissionStatus.SUBMITTED,
                 SubmissionStatus.UNDER_REVIEW,
                 SubmissionStatus.ACCEPTED,
-                SubmissionStatus.REJECTED
-        ));
+                SubmissionStatus.REJECTED));
     }
 }
