@@ -3,7 +3,6 @@ package com.jugbaq.cfp.users;
 import com.jugbaq.cfp.TestcontainersConfiguration;
 import com.jugbaq.cfp.shared.domain.TenantRepository;
 
-import com.jugbaq.cfp.users.domain.TenantRole;
 import com.jugbaq.cfp.users.domain.User;
 import com.jugbaq.cfp.users.domain.UserRepository;
 import org.junit.jupiter.api.Test;

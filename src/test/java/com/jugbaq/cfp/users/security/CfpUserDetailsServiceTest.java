@@ -3,7 +3,7 @@ package com.jugbaq.cfp.users.security;
 import com.jugbaq.cfp.TestcontainersConfiguration;
 import com.jugbaq.cfp.shared.domain.Tenant;
 import com.jugbaq.cfp.shared.domain.TenantRepository;
-import com.jugbaq.cfp.users.domain.TenantRole;
+import com.jugbaq.cfp.users.TenantRole;
 import com.jugbaq.cfp.users.domain.User;
 import com.jugbaq.cfp.users.domain.UserRepository;
 import org.junit.jupiter.api.BeforeEach;

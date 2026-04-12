@@ -3,6 +3,7 @@ package com.jugbaq.cfp.users.domain;
 
 import com.jugbaq.cfp.shared.domain.Tenant;
 import com.jugbaq.cfp.shared.domain.TenantRepository;
+import com.jugbaq.cfp.users.TenantRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

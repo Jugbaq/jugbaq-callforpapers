@@ -1,6 +1,6 @@
 package com.jugbaq.cfp.users.security;
 
-import com.jugbaq.cfp.users.domain.TenantRole;
+import com.jugbaq.cfp.users.TenantRole;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
