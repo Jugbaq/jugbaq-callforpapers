@@ -1,9 +1,5 @@
 package com.jugbaq.cfp.users;
 
-import com.jugbaq.cfp.shared.domain.TenantRepository;
-import com.jugbaq.cfp.users.domain.TenantRole;
-import com.jugbaq.cfp.users.domain.User;
-import com.jugbaq.cfp.users.domain.UserRepository;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Anchor;
@@ -22,7 +18,6 @@ import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Route("register")
 @PageTitle("Registro — CallForPapers")
