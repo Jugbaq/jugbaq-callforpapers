@@ -65,6 +65,11 @@ management:
     health:
       show-details: when_authorized
 
+cfp:
+  mail:
+    from: noreply@jugbaq.dev
+  base-url: http://localhost:8080
+
 logging:
   level:
     com.jugbaq.cfp: DEBUG

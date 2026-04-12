@@ -1,5 +1,6 @@
 package com.jugbaq.cfp.ui.layout;
 
+import com.jugbaq.cfp.notifications.NotificationService;
 import com.jugbaq.cfp.users.security.CfpUserDetails;
 import com.jugbaq.cfp.users.security.SecurityUtils;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -26,9 +27,11 @@ import java.util.Optional;
 public class MainLayout extends AppLayout {
 
     private final SecurityUtils securityUtils;
+    private final NotificationService notificationService;
 
-    public MainLayout(SecurityUtils securityUtils) {
+    public MainLayout(SecurityUtils securityUtils, NotificationService notificationService) {
         this.securityUtils = securityUtils;
+        this.notificationService = notificationService;
         createHeader();
         createDrawer();
     }
@@ -56,10 +59,21 @@ public class MainLayout extends AppLayout {
             Span userName = new Span(user.get().getFullName());
             userName.addClassNames(LumoUtility.FontSize.SMALL);
 
+            // Badge de notificaciones
+            long unread = notificationService.unreadCount(user.get().getUserId());
+            Button notifBtn = new Button("🔔 " + (unread > 0 ? unread : ""));
+            notifBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+            if (unread > 0) {
+                notifBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            }
+            notifBtn.addClickListener(e ->
+                    notifBtn.getUI().ifPresent(ui -> ui.navigate("t/jugbaq/notifications"))
+            );
+
             Button logoutBtn = new Button("Salir", event -> securityUtils.logout());
             logoutBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
 
-            header.add(userName, logoutBtn);
+            header.add(notifBtn, userName, logoutBtn);
         } else {
             Anchor loginLink = new Anchor("/login", "Iniciar sesión");
             header.add(loginLink);
