@@ -1,4 +1,10 @@
 package com.jugbaq.cfp.review.domain;
 
-public class ReviewDiscussionRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+import java.util.UUID;
+
+public interface ReviewDiscussionRepository extends JpaRepository<ReviewDiscussion, UUID> {
+    List<ReviewDiscussion> findBySubmissionIdOrderByCreatedAtAsc(UUID submissionId);
 }

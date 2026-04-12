@@ -1,4 +1,4 @@
-package com.jugbaq.cfp.review.events;
+package com.jugbaq.cfp.submissions.events;
 
 import java.util.UUID;
 
