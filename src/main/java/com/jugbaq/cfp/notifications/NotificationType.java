@@ -1,4 +1,4 @@
-package com.jugbaq.cfp.notifications.domain;
+package com.jugbaq.cfp.notifications;
 
 public enum NotificationType {
     SUBMISSION_RECEIVED,      // Al speaker cuando manda propuesta
