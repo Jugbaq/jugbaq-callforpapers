@@ -18,5 +18,4 @@ public class TestcontainersConfiguration {
                 .withPassword("test")
                 .withReuse(true);
     }
-
 }
