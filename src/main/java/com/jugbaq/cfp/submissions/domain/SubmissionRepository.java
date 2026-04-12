@@ -1,5 +1,6 @@
 package com.jugbaq.cfp.submissions.domain;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,4 +22,12 @@ public interface SubmissionRepository extends JpaRepository<Submission, UUID> {
             "WHERE s.speakerId = :speakerId " +
             "ORDER BY s.createdAt DESC")
     List<Submission> findBySpeakerIdOrderByCreatedAtDesc(@Param("speakerId") UUID speakerId);
+
+    List<Submission> findByEventIdAndStatusOrderByCreatedAtDesc(UUID eventId, SubmissionStatus status);
+
+    @EntityGraph(attributePaths = {"event", "track", "format", "tags"})
+    List<Submission> findByStatusInOrderByCreatedAtDesc(List<SubmissionStatus> statuses);
+
+    @EntityGraph(attributePaths = {"event", "track", "format", "tags"})
+    List<Submission> findByEventIdOrderByCreatedAtDesc(UUID eventId);
 }

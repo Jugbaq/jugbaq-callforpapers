@@ -146,4 +146,21 @@ public class SubmissionService {
         return repository.countByEventIdAndSpeakerIdAndStatusNot(
                 eventId, speakerId, SubmissionStatus.WITHDRAWN);
     }
+
+    @Transactional(readOnly = true)
+    public List<Submission> listForReview(UUID eventId, SubmissionStatus statusFilter) {
+        if (eventId != null && statusFilter != null) {
+            return repository.findByEventIdAndStatusOrderByCreatedAtDesc(eventId, statusFilter);
+        }
+        if (eventId != null) {
+            return repository.findByEventIdOrderByCreatedAtDesc(eventId);
+        }
+        
+        return repository.findByStatusInOrderByCreatedAtDesc(List.of(
+                SubmissionStatus.SUBMITTED,
+                SubmissionStatus.UNDER_REVIEW,
+                SubmissionStatus.ACCEPTED,
+                SubmissionStatus.REJECTED
+        ));
+    }
 }
