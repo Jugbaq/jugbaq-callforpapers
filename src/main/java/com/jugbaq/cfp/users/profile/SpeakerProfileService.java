@@ -5,10 +5,11 @@ import com.jugbaq.cfp.users.SpeakerSummary;
 import com.jugbaq.cfp.users.domain.SpeakerProfile;
 import com.jugbaq.cfp.users.domain.User;
 import com.jugbaq.cfp.users.domain.UserRepository;
+
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.regex.Pattern;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class SpeakerProfileService {
 
-    private static final Pattern URL_PATTERN = Pattern.compile("^https?://[\\w-]+(?:\\.[\\w-]+)+[/#?]?.*$");
     private static final String USER_NOT_FOUND_MSG = "Usuario no encontrado";
 
     private final UserRepository userRepository;
@@ -78,7 +78,16 @@ public class SpeakerProfileService {
     }
 
     private void validateUrl(String url) {
-        if (!URL_PATTERN.matcher(url).matches()) {
+        try {
+            URI uri = new URI(url);
+            String scheme = uri.getScheme();
+            if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))) {
+                throw new IllegalArgumentException("La URL debe iniciar con http o https: " + url);
+            }
+            if (uri.getHost() == null) {
+                throw new IllegalArgumentException("Host de URL inválido: " + url);
+            }
+        } catch (java.net.URISyntaxException e) {
             throw new IllegalArgumentException("URL inválida: " + url);
         }
     }
