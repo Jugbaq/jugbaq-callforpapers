@@ -1,7 +1,8 @@
 package com.jugbaq.cfp.users.security;
 
-import com.jugbaq.cfp.users.ui.LoginView;
+import com.jugbaq.cfp.ui.public_.LoginView;
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,9 +11,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+
 @Configuration
 @EnableWebSecurity
-public class SecurityConfiguration {
+public class SecurityConfiguration{
 
     private final CfpUserDetailsService userDetailsService;
     private final CfpOAuth2UserService oAuth2UserService;
@@ -35,21 +37,27 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        // 1. Configuración de OAuth2 (Sin .permitAll())
-        http.oauth2Login(oauth2 -> oauth2.loginPage("/login")
+        // 1. Rutas públicas seguras usando AntPathRequestMatcher (Spring Sec 6+)
+        // Agregamos también /line-awesome/** para que los logos de las redes carguen en la pantalla de login sin estar autenticado
+        http.authorizeHttpRequests(authz -> authz
+                .requestMatchers(
+                        "/t/*/api/events/*/calendar.ics",
+                        "/avatars/**",
+                        "/line-awesome/**",
+                        "/error"
+                ).permitAll()
+        );
+
+        // 2. Configuración de OAuth2 (Google / GitHub)
+        http.oauth2Login(oauth2 -> oauth2
+                .loginPage("/login")
                 .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService))
-                .successHandler(oAuth2SuccessHandler));
+                .successHandler(oAuth2SuccessHandler)
+        );
 
-        // 2. Configuración de Form login (email + password) (Sin .permitAll())
-        http.formLogin(form -> form.loginPage("/login"));
-
-        // 3. Configuración de Logout
-        http.logout(logout -> logout.logoutSuccessUrl("/login"));
-
-        // 4. UserDetailsService para auth estándar
+        // 3. UserDetailsService para auth estándar (correo y contraseña)
         http.userDetailsService(userDetailsService);
 
-        // 5. Aplicamos las reglas de Vaadin (ESTO hace público el /login automáticamente)
         http.with(VaadinSecurityConfigurer.vaadin(), vaadin -> {
             vaadin.loginView(LoginView.class);
         });
