@@ -19,6 +19,7 @@ import com.jugbaq.cfp.submissions.events.SubmissionSubmittedEvent;
 import com.jugbaq.cfp.users.domain.User;
 import com.jugbaq.cfp.users.domain.UserRepository;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -158,6 +159,51 @@ class SubmissionServiceTest {
         Submission reloaded = submissionService.findById(draft.getId()).orElseThrow();
         assertThat(reloaded.getTitle()).isEqualTo("Título actualizado");
         assertThat(reloaded.getAbstractText()).contains("más detallado");
+    }
+
+    @Test
+    void should_list_for_review_with_event_and_status() {
+        Submission draft = submissionService.createDraft(openEvent.getId(), speakerId, buildData("Review 1"));
+        submissionService.markAsSubmitted(draft.getId(), speakerId);
+
+        List<Submission> result = submissionService.listForReview(openEvent.getId(), SubmissionStatus.SUBMITTED);
+        assertThat(result).isNotEmpty();
+    }
+
+    @Test
+    void should_list_for_review_with_event_only() {
+        Submission draft = submissionService.createDraft(openEvent.getId(), speakerId, buildData("Review 2"));
+        submissionService.markAsSubmitted(draft.getId(), speakerId);
+
+        List<Submission> result = submissionService.listForReview(openEvent.getId(), null);
+        assertThat(result).isNotEmpty();
+    }
+
+    @Test
+    void should_list_for_review_with_status_only() {
+        Submission draft = submissionService.createDraft(openEvent.getId(), speakerId, buildData("Review 3"));
+        submissionService.markAsSubmitted(draft.getId(), speakerId);
+
+        List<Submission> result = submissionService.listForReview(null, SubmissionStatus.SUBMITTED);
+        assertThat(result).isNotEmpty();
+    }
+
+    @Test
+    void should_list_for_review_with_no_filters() {
+        Submission draft = submissionService.createDraft(openEvent.getId(), speakerId, buildData("Review 4"));
+        submissionService.markAsSubmitted(draft.getId(), speakerId);
+
+        List<Submission> result = submissionService.listForReview(null, null);
+        assertThat(result).isNotEmpty();
+    }
+
+    @Test
+    void should_count_active_submissions_by_speaker() {
+        submissionService.createDraft(openEvent.getId(), speakerId, buildData("Count 1"));
+        submissionService.createDraft(openEvent.getId(), speakerId, buildData("Count 2"));
+
+        long count = submissionService.countActiveSubmissionsBySpeaker(openEvent.getId(), speakerId);
+        assertThat(count).isEqualTo(2);
     }
 
     private SubmissionData buildData(String title) {

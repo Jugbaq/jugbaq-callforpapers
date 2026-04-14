@@ -39,4 +39,32 @@ class RateLimitServiceTest {
         }
         assertThat(service.submissionBucket(userId).tryConsume(1)).isFalse();
     }
+
+    @Test
+    void should_allow_10_login_attempts_per_ip() {
+        String ip = "192.168.1.102";
+        for (int i = 0; i < 10; i++) {
+            assertThat(service.loginBucket(ip).tryConsume(1)).isTrue();
+        }
+        assertThat(service.loginBucket(ip).tryConsume(1)).isFalse();
+    }
+
+    @Test
+    void should_allow_10_uploads_per_user() {
+        String userId = "user-uploader";
+        for (int i = 0; i < 10; i++) {
+            assertThat(service.uploadBucket(userId).tryConsume(1)).isTrue();
+        }
+        assertThat(service.uploadBucket(userId).tryConsume(1)).isFalse();
+    }
+
+    @Test
+    void should_clear_bucket() {
+        String ip = "192.168.1.103";
+        service.registrationBucket(ip).tryConsume(5);
+        assertThat(service.registrationBucket(ip).tryConsume(1)).isFalse();
+
+        service.clearBucket("register:" + ip);
+        assertThat(service.registrationBucket(ip).tryConsume(1)).isTrue();
+    }
 }

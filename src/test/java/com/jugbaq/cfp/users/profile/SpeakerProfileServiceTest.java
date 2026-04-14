@@ -106,6 +106,71 @@ class SpeakerProfileServiceTest {
     }
 
     @Test
+    void should_reject_url_with_invalid_syntax() {
+        SpeakerProfileService.ProfileUpdateData data = new SpeakerProfileService.ProfileUpdateData();
+        data.setWebsiteUrl("http://invalid host with spaces");
+
+        assertThatThrownBy(() -> profileService.updateProfile(userId, data))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("URL inválida");
+    }
+
+    @Test
+    void should_reject_url_without_host() {
+        SpeakerProfileService.ProfileUpdateData data = new SpeakerProfileService.ProfileUpdateData();
+        data.setWebsiteUrl("http:///path-only");
+
+        assertThatThrownBy(() -> profileService.updateProfile(userId, data))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Host de URL inválido");
+    }
+
+    @Test
+    void should_set_avatar() {
+        profileService.setAvatar(userId, "/uploads/avatar.png");
+
+        User reloaded = userRepository.findById(userId).orElseThrow();
+        assertThat(reloaded.getSpeakerProfile().getPhotoUrl()).isEqualTo("/uploads/avatar.png");
+    }
+
+    @Test
+    void should_get_speaker_summary() {
+        SpeakerProfileService.ProfileUpdateData data = new SpeakerProfileService.ProfileUpdateData();
+        data.setTagline("Java Champion");
+        data.setCompany("JUGBAQ");
+        profileService.updateProfile(userId, data);
+
+        var summary = profileService.getSpeakerSummary(userId);
+
+        assertThat(summary.fullName()).isEqualTo("Profile Test");
+        assertThat(summary.tagline()).isEqualTo("Java Champion");
+        assertThat(summary.company()).isEqualTo("JUGBAQ");
+    }
+
+    @Test
+    void should_clear_website_url_when_blank() {
+        SpeakerProfileService.ProfileUpdateData data = new SpeakerProfileService.ProfileUpdateData();
+        data.setWebsiteUrl("https://geovanny.dev");
+        profileService.updateProfile(userId, data);
+
+        SpeakerProfileService.ProfileUpdateData update = new SpeakerProfileService.ProfileUpdateData();
+        update.setWebsiteUrl("   ");
+        var profile = profileService.updateProfile(userId, update);
+
+        assertThat(profile.getWebsiteUrl()).isNull();
+    }
+
+    @Test
+    void should_reject_ftp_scheme_url() {
+        SpeakerProfileService.ProfileUpdateData data = new SpeakerProfileService.ProfileUpdateData();
+        data.setWebsiteUrl("ftp://files.example.com");
+
+        assertThatThrownBy(() -> profileService.updateProfile(userId, data))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("La URL debe iniciar con http o https");
+    }
+
+    @Test
     void should_skip_empty_social_links() {
         profileService.replaceSocialLinks(
                 userId,

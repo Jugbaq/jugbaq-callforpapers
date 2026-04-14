@@ -58,5 +58,7 @@ tasks:
 
   sonar:
     desc: "Corre el análisis de SonarQube localmente"
+    vars:
+      SONAR_TOKEN: '{{.SONAR_TOKEN | default ""}}'
     cmds:
       - ./mvnw verify sonar:sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.login={{.SONAR_TOKEN}}

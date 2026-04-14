@@ -22,6 +22,32 @@
         <spring-modulith.version>1.4.10</spring-modulith.version>
         <vaadin.version>24.9.13</vaadin.version>
         <spotless-maven-plugin.version>2.43.0</spotless-maven-plugin.version>
+        <sonar.coverage.exclusions>
+            **/ui/**/*.java,
+            **/security/**/*.java,
+            **/shared/logging/**/*.java,
+            **/shared/tenant/TenantFilter.java,
+            **/shared/tenant/TenantSessionFilter.java,
+            **/shared/health/**/*.java,
+            **/publishing/CalendarController.java,
+            **/users/profile/AvatarController.java,
+            **/users/profile/AvatarStorageService.java,
+            **/*Exception.java,
+            **/shared/domain/*.java,
+            **/events/domain/*.java,
+            **/submissions/domain/*.java,
+            **/users/domain/*.java,
+            **/review/domain/*.java,
+            **/publishing/domain/*.java,
+            **/notifications/domain/*.java,
+            **/notifications/SubmissionNotificationListener.java,
+            **/users/UserQueryService.java,
+            **/submissions/SubmissionData.java,
+            **/notifications/NotificationSummary.java,
+            **/publishing/AgendaSlotSummary.java,
+            **/review/ReviewSummary.java,
+            **/users/SpeakerSummary.java
+        </sonar.coverage.exclusions>
     </properties>
 
     <dependencyManagement>

@@ -37,12 +37,12 @@ public class MainLayout extends AppLayout {
     private static final Logger log = LoggerFactory.getLogger(MainLayout.class);
     private final SecurityUtils securityUtils;
     private final NotificationService notificationService;
+    private static final String STYLE_COLOR = "color";
 
     public MainLayout(SecurityUtils securityUtils, NotificationService notificationService) {
         this.securityUtils = securityUtils;
         this.notificationService = notificationService;
 
-        // El Drawer ocupa todo el alto de la pantalla a la izquierda
         setPrimarySection(Section.DRAWER);
 
         createHeader();
@@ -50,9 +50,8 @@ public class MainLayout extends AppLayout {
     }
 
     private void createHeader() {
-        // En el Header AHORA SOLO va el botón de hamburguesa y las acciones de usuario
         DrawerToggle toggle = new DrawerToggle();
-        toggle.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        toggle.getStyle().set(STYLE_COLOR, "var(--lumo-secondary-text-color)");
 
         HorizontalLayout actionsLayout = new HorizontalLayout();
         actionsLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
@@ -131,7 +130,7 @@ public class MainLayout extends AppLayout {
                 LumoUtility.Display.FLEX,
                 LumoUtility.AlignItems.CENTER,
                 LumoUtility.JustifyContent.BETWEEN,
-                LumoUtility.Padding.End.MEDIUM, // Padding solo a la derecha
+                LumoUtility.Padding.End.MEDIUM,
                 LumoUtility.Padding.Vertical.SMALL,
                 LumoUtility.BoxShadow.XSMALL);
         header.getStyle().set("background", "var(--lumo-base-color)");
@@ -140,10 +139,10 @@ public class MainLayout extends AppLayout {
     }
 
     private void createDrawer() {
-        // --- BRANDING (AHORA EN EL DRAWER) ---
+
         H1 logo = new H1("CallForPapers");
         logo.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE, LumoUtility.FontWeight.BOLD);
-        logo.getStyle().set("color", "var(--lumo-primary-color)");
+        logo.getStyle().set(STYLE_COLOR, "var(--lumo-primary-color)");
 
         Span tenantBadge = new Span("JUGBAQ");
         tenantBadge.getElement().getThemeList().add("badge primary");
@@ -154,7 +153,6 @@ public class MainLayout extends AppLayout {
         brandLayout.addClassNames(LumoUtility.Padding.MEDIUM, LumoUtility.Margin.Bottom.SMALL);
         brandLayout.setSpacing(false);
 
-        // --- CONTENIDO DEL MENÚ ---
         VerticalLayout drawerContent = new VerticalLayout();
         drawerContent.setSizeFull();
         drawerContent.setPadding(false);
@@ -181,7 +179,6 @@ public class MainLayout extends AppLayout {
 
         Scroller scroller = new Scroller(drawerContent);
 
-        // Magia: El brandLayout queda fijo arriba, y el resto hace scroll
         addToDrawer(brandLayout, scroller);
     }
 
@@ -194,7 +191,7 @@ public class MainLayout extends AppLayout {
                 LumoUtility.Padding.Horizontal.MEDIUM,
                 LumoUtility.TextTransform.UPPERCASE,
                 LumoUtility.FontWeight.BOLD);
-        header.getStyle().set("color", "var(--lumo-tertiary-text-color)");
+        header.getStyle().set(STYLE_COLOR, "var(--lumo-tertiary-text-color)");
         return header;
     }
 

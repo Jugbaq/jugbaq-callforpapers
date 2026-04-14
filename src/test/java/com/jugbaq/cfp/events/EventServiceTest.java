@@ -9,6 +9,7 @@ import com.jugbaq.cfp.events.domain.EventStatus;
 import com.jugbaq.cfp.shared.domain.TenantRepository;
 import com.jugbaq.cfp.shared.tenant.TenantContext;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,5 +72,44 @@ class EventServiceTest {
                 UUID.fromString("a0000000-0000-0000-0000-000000000001"));
         assertThatThrownBy(() -> service.updateStatus(e.getId(), EventStatus.PUBLISHED))
                 .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void should_list_cfp_open_events() {
+        Event open = service.createEvent(
+                "open-" + UUID.randomUUID(),
+                "Open Event",
+                Instant.now().plusSeconds(86400),
+                UUID.fromString("a0000000-0000-0000-0000-000000000001"));
+        service.updateStatus(open.getId(), EventStatus.CFP_OPEN);
+
+        List<Event> result = service.listCfpOpen();
+        assertThat(result).anyMatch(e -> e.getId().equals(open.getId()));
+    }
+
+    @Test
+    void should_return_null_when_slug_not_found_for_tracks() {
+        Event result = service.getEventWithTracksBySlug("nonexistent-slug-" + UUID.randomUUID());
+        assertThat(result).isNull();
+    }
+
+    @Test
+    void should_find_by_slug_with_details() {
+        String slug = "details-" + UUID.randomUUID();
+        Event e = service.createEvent(
+                slug,
+                "Details Event",
+                Instant.now().plusSeconds(86400),
+                UUID.fromString("a0000000-0000-0000-0000-000000000001"));
+
+        var result = service.findBySlugWithDetails(slug);
+        assertThat(result).isPresent();
+        assertThat(result.get().getName()).isEqualTo("Details Event");
+    }
+
+    @Test
+    void should_return_empty_when_slug_not_found_for_details() {
+        var result = service.findBySlugWithDetails("nonexistent-slug-" + UUID.randomUUID());
+        assertThat(result).isEmpty();
     }
 }
