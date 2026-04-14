@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* --- ESTILOS GLOBALES (MODO CLARO) --- */
+html {
+    /* 1. Cambiamos la tipografía a Inter */
+    --lumo-font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+
+    /* 2. Color Principal (Un Azul Indigo moderno tipo Tailwind) */
+    --lumo-primary-color: #4F46E5;
+    --lumo-primary-color-50pct: rgba(79, 70, 229, 0.5);
+    --lumo-primary-color-10pct: rgba(79, 70, 229, 0.1);
+    --lumo-primary-text-color: #4338CA;
+
+    /* 3. Bordes más redondeados (Estilo Apple/Moderno) */
+    --lumo-border-radius-m: 0.5rem;   /* Para botones y campos de texto */
+    --lumo-border-radius-l: 1rem;     /* Para tarjetas y modales */
+
+    /* 4. Sombras más suaves y profundas */
+    --lumo-box-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --lumo-box-shadow-s: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --lumo-box-shadow-m: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --lumo-box-shadow-l: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+    /* 5. Ajuste de fondo general de la aplicación */
+    --lumo-base-color: #FFFFFF;
+    --lumo-tint-5pct: #F9FAFB; /* Fondo gris súper claro para diferenciar áreas */
+}
+
+/* --- AJUSTES FINOS DE COMPONENTES --- */
+
+/* Efecto de "levantamiento" al pasar el mouse por botones primarios */
+vaadin-button[theme~="primary"] {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+vaadin-button[theme~="primary"]:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--lumo-box-shadow-m);
+}
+
+/* Campos de texto con borde sutil en lugar del fondo gris por defecto */
+vaadin-text-field, vaadin-password-field, vaadin-email-field {
+    --lumo-contrast-10pct: transparent; /* Quita el fondo gris */
+    /* Le ponemos un borde gris sutil */
+    box-shadow: inset 0 0 0 1px #E5E7EB;
+    transition: box-shadow 0.2s ease;
+}
+
+/* Efecto focus en los campos de texto (anillo azul) */
+vaadin-text-field[focus-ring], vaadin-password-field[focus-ring], vaadin-email-field[focus-ring] {
+    box-shadow: inset 0 0 0 2px var(--lumo-primary-color), 0 0 0 4px var(--lumo-primary-color-10pct);
+}
+
+/*
+html {
+    /* Un azul clásico, stable y muy profesional */
+  /*  --lumo-primary-color: #0077F2;
+    --lumo-primary-color-50pct: rgba(0, 119, 242, 0.5);
+    --lumo-primary-color-10pct: rgba(0, 119, 242, 0.1);
+    --lumo-primary-text-color: #0060C3;
+}
+*/
+html {
+    /* 1. Cambiamos el color primario al de la comunidad (Ejemplo: Un azul más vibrante) */
+    --lumo-primary-color: #0066FF;
+    --lumo-primary-text-color: #0052CC;
+
+    /* 2. Bordes más suaves y modernos en toda la app */
+    --lumo-border-radius-m: 0.5rem; /* Botones y campos */
+    --lumo-border-radius-l: 1rem;   /* Tarjetas y modales */
+
+    /* 3. Sombras más elegantes y menos duras */
+    --lumo-box-shadow-s: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --lumo-box-shadow-m: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Efecto de elevación para las tarjetas de los speakers */
+.speaker-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    background: var(--lumo-base-color);
+    border: 1px solid var(--lumo-contrast-10pct);
+    box-shadow: var(--lumo-box-shadow-s);
+}
+
+.speaker-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--lumo-box-shadow-m);
+    border-color: var(--lumo-primary-color-50pct);
+}

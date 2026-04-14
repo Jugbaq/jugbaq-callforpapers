@@ -41,15 +41,15 @@ public class SecurityConfiguration {
         // 1. Rutas públicas seguras usando AntPathRequestMatcher (Spring Sec 6+)
         // Agregamos también /line-awesome/** para que los logos de las redes carguen en la pantalla de login sin estar
         // autenticado
-        http.authorizeHttpRequests(authz -> authz
-                        .requestMatchers(
-                                "/t/*/api/events/*/calendar.ics",
-                                "/avatars/**",
-                                "/line-awesome/**",
-                                "/error",
-                                "/actuator/health" 
-                        ).permitAll()
-                        .requestMatchers("/actuator/**").hasRole("ADMIN"));
+        http.authorizeHttpRequests(authz -> authz.requestMatchers(
+                        "/t/*/api/events/*/calendar.ics",
+                        "/avatars/**",
+                        "/line-awesome/**",
+                        "/error",
+                        "/actuator/health")
+                .permitAll()
+                .requestMatchers("/actuator/**")
+                .hasRole("ADMIN"));
 
         // 2. Configuración de OAuth2 (Google / GitHub)
         http.oauth2Login(oauth2 -> oauth2.loginPage("/login")

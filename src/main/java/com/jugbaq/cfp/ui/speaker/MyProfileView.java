@@ -25,11 +25,10 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.streams.UploadHandler;
 import jakarta.annotation.security.RolesAllowed;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -93,28 +92,41 @@ public class MyProfileView extends VerticalLayout {
                 .set("object-fit", "cover")
                 .set("border", "2px solid var(--lumo-contrast-20pct)");
 
-        MemoryBuffer buffer = new MemoryBuffer();
-        Upload upload = new Upload(buffer);
+        // 1. Instanciamos el Upload vacío, sin el MemoryBuffer
+        Upload upload = new Upload();
         upload.setAcceptedFileTypes("image/jpeg", "image/png", "image/webp");
         upload.setMaxFiles(1);
         upload.setMaxFileSize(2 * 1024 * 1024); // 2 MB
         upload.setDropLabel(new Span("Arrastra una foto o haz click"));
 
-        upload.addSucceededListener(event -> {
+        // 2. Usamos el nuevo UploadHandler (inMemory)
+        upload.setUploadHandler(UploadHandler.inMemory((metadata, bytes) -> {
             UUID userId = securityUtils.getCurrentUserId().orElseThrow();
+
+            // Verificación del Rate Limit
             if (!rateLimitService.uploadBucket(userId.toString()).tryConsume(1)) {
-                showError("Demasiadas subidas. Intenta más tarde.");
+                // Como estamos en un hilo secundario, usamos ui.access() para mostrar la notificación
+                upload.getUI().ifPresent(ui -> ui.access(() -> showError("Demasiadas subidas. Intenta más tarde.")));
                 return;
             }
+
             try {
-                String relativePath = avatarStorage.save(userId, event.getFileName(), buffer.getInputStream());
+                // Convertimos el array de bytes a InputStream para tu servicio avatarStorage
+                java.io.ByteArrayInputStream inputStream = new java.io.ByteArrayInputStream(bytes);
+
+                String relativePath = avatarStorage.save(userId, metadata.fileName(), inputStream);
                 profileService.setAvatar(userId, relativePath);
-                avatarImg.setSrc(relativePath + "?t=" + System.currentTimeMillis());
-                showSuccess("Foto actualizada");
-            } catch (IOException | IllegalArgumentException ex) {
-                showError("Error subiendo foto: " + ex.getMessage());
+
+                // Actualizamos la imagen en la UI de forma segura
+                upload.getUI()
+                        .ifPresent(ui -> ui.access(() -> {
+                            avatarImg.setSrc(relativePath + "?t=" + System.currentTimeMillis());
+                            showSuccess("Foto actualizada");
+                        }));
+            } catch (Exception ex) {
+                upload.getUI().ifPresent(ui -> ui.access(() -> showError("Error subiendo foto: " + ex.getMessage())));
             }
-        });
+        }));
 
         HorizontalLayout avatarRow = new HorizontalLayout(avatarImg, upload);
         avatarRow.setAlignItems(Alignment.CENTER);
