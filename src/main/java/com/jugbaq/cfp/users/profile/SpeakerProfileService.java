@@ -5,7 +5,6 @@ import com.jugbaq.cfp.users.SpeakerSummary;
 import com.jugbaq.cfp.users.domain.SpeakerProfile;
 import com.jugbaq.cfp.users.domain.User;
 import com.jugbaq.cfp.users.domain.UserRepository;
-
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
