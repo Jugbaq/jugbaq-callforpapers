@@ -73,7 +73,7 @@ public class SecurityConfiguration {
                 .contentSecurityPolicy(csp -> csp.policyDirectives(
                         "default-src 'self'; " + "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
                                 + "style-src 'self' 'unsafe-inline' fonts.googleapis.com; "
-                                + "font-src 'self' fonts.gstatic.com; "
+                                + "font-src 'self' fonts.gstatic.com data:; "
                                 + "img-src 'self' data: https://api.dicebear.com; "
                                 + "connect-src 'self'; "
                                 + "frame-ancestors 'none'"))

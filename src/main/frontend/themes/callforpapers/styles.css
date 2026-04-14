@@ -87,3 +87,23 @@ html {
     box-shadow: var(--lumo-box-shadow-m);
     border-color: var(--lumo-primary-color-50pct);
 }
+
+html {
+    /* Familia Primaria (El azul que resalta) */
+    --lumo-primary-color: light-dark(#4F46E5, #818cf8);
+    --lumo-primary-text-color: light-dark(#4338CA, #a5b4fc);
+
+    /* Familia Grayscale (Los grises para textos y bordes) */
+    --lumo-contrast: light-dark(#111827, #f9fafb); /* Texto principal (casi negro en claro, casi blanco en oscuro) */
+    --lumo-base-color: light-dark(#ffffff, #1f2937); /* Fondos de tarjetas */
+}
+
+html {
+    /* Bordes más redondeados tipo Apple */
+    --lumo-border-radius-m: 0.5rem;
+    --lumo-border-radius-l: 1rem;
+
+    /* Sombras más suaves, menos marcadas */
+    --lumo-box-shadow-s: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    --lumo-box-shadow-m: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
