@@ -219,6 +219,98 @@ class AgendaServiceTest {
     }
 
     @Test
+    void should_create_slot_without_track() {
+        Instant start = Instant.now().plus(30, ChronoUnit.DAYS);
+        AgendaSlot slot = agendaService.saveSlot(
+                event.getId(), accepted1.getId(), null, start, start.plus(30, ChronoUnit.MINUTES), null);
+
+        assertThat(slot.getId()).isNotNull();
+        assertThat(slot.getTrack()).isNull();
+    }
+
+    @Test
+    void should_create_slot_without_submission() {
+        Instant start = Instant.now().plus(30, ChronoUnit.DAYS);
+        AgendaSlot slot = agendaService.saveSlot(
+                event.getId(),
+                null,
+                event.getTracks().get(0).getId(),
+                start,
+                start.plus(30, ChronoUnit.MINUTES),
+                "Break");
+
+        assertThat(slot.getId()).isNotNull();
+        assertThat(slot.getSubmission()).isNull();
+        assertThat(slot.getTitleOverride()).isEqualTo("Break");
+    }
+
+    @Test
+    void should_reject_slot_with_invalid_time_range() {
+        Instant start = Instant.now().plus(30, ChronoUnit.DAYS);
+        assertThatThrownBy(() -> agendaService.saveSlot(
+                        event.getId(),
+                        accepted1.getId(),
+                        event.getTracks().get(0).getId(),
+                        start.plus(30, ChronoUnit.MINUTES),
+                        start,
+                        null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("startsAt debe ser antes de endsAt");
+    }
+
+    @Test
+    void should_move_slot_to_different_track() {
+        UUID trackA = event.getTracks().get(0).getId();
+        UUID trackB = event.getTracks().get(0).getId();
+        Instant start = Instant.now().plus(30, ChronoUnit.DAYS);
+
+        AgendaSlot slot = agendaService.saveSlot(
+                event.getId(), accepted1.getId(), trackA, start, start.plus(30, ChronoUnit.MINUTES), null);
+
+        AgendaSlot moved = agendaService.moveSlot(
+                slot.getId(), trackB, start.plus(60, ChronoUnit.MINUTES), start.plus(90, ChronoUnit.MINUTES));
+
+        assertThat(moved.getId()).isEqualTo(slot.getId());
+    }
+
+    @Test
+    void should_delete_slot() {
+        Instant start = Instant.now().plus(30, ChronoUnit.DAYS);
+        AgendaSlot slot = agendaService.saveSlot(
+                event.getId(),
+                accepted1.getId(),
+                event.getTracks().get(0).getId(),
+                start,
+                start.plus(30, ChronoUnit.MINUTES),
+                null);
+
+        agendaService.deleteSlot(slot.getId());
+
+        assertThat(agendaService.findById(slot.getId())).isEmpty();
+    }
+
+    @Test
+    void should_find_slot_by_id() {
+        Instant start = Instant.now().plus(30, ChronoUnit.DAYS);
+        AgendaSlot slot = agendaService.saveSlot(
+                event.getId(),
+                accepted1.getId(),
+                event.getTracks().get(0).getId(),
+                start,
+                start.plus(30, ChronoUnit.MINUTES),
+                null);
+
+        assertThat(agendaService.findById(slot.getId())).isPresent();
+    }
+
+    @Test
+    void should_reject_publish_when_not_in_review_status() {
+        assertThatThrownBy(() -> agendaService.publishEvent(event.getId()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("REVIEW");
+    }
+
+    @Test
     void should_generate_valid_ical() {
         UUID trackId = event.getTracks().get(0).getId();
         Instant start = Instant.parse("2026-05-15T19:00:00Z");
@@ -234,6 +326,35 @@ class AgendaServiceTest {
         assertThat(ical).contains("BEGIN:VEVENT");
         assertThat(ical).contains("DTSTART:20260515T190000Z");
         assertThat(ical).contains("SUMMARY:Charla A");
+    }
+
+    @Test
+    void should_generate_ical_without_location() {
+        UUID trackId = event.getTracks().get(0).getId();
+        Instant start = Instant.parse("2026-05-15T19:00:00Z");
+
+        agendaService.saveSlot(
+                event.getId(), accepted1.getId(), trackId, start, start.plus(30, ChronoUnit.MINUTES), null);
+
+        var slots = agendaService.listForEvent(event.getId());
+        String ical = ICalGenerator.generate(event, slots);
+
+        assertThat(ical).contains("SUMMARY:Charla A");
+        assertThat(ical).doesNotContain("LOCATION:");
+    }
+
+    @Test
+    void should_generate_ical_for_slot_without_track() {
+        Instant start = Instant.parse("2026-05-15T19:00:00Z");
+
+        agendaService.saveSlot(
+                event.getId(), accepted1.getId(), null, start, start.plus(30, ChronoUnit.MINUTES), "Break");
+
+        var slots = agendaService.listForEvent(event.getId());
+        String ical = ICalGenerator.generate(event, slots);
+
+        assertThat(ical).contains("SUMMARY:Break");
+        assertThat(ical).doesNotContain("CATEGORIES:");
     }
 
     private Submission createAcceptedSubmission(UUID speakerId, String title) {

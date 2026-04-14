@@ -3,6 +3,7 @@ package com.jugbaq.cfp.ui.public_;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
@@ -32,6 +33,7 @@ import java.util.Map;
 @PageTitle("Call For Papers - Iniciar Sesión")
 @AnonymousAllowed
 @Uses(Icon.class)
+@JsModule("@vaadin/vaadin-lumo-styles/icons.js")
 public class LoginView extends HorizontalLayout implements BeforeEnterObserver {
 
     public LoginView() {

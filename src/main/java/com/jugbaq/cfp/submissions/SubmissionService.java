@@ -172,6 +172,9 @@ public class SubmissionService {
         if (eventId != null) {
             return repository.findByEventIdOrderByCreatedAtDesc(eventId);
         }
+        if (statusFilter != null) {
+            return repository.findByStatusOrderByCreatedAtDesc(statusFilter);
+        }
 
         return repository.findByStatusInOrderByCreatedAtDesc(List.of(
                 SubmissionStatus.SUBMITTED,

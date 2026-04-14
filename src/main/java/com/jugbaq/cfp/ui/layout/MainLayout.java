@@ -9,14 +9,17 @@ import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
@@ -24,104 +27,142 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.Lumo;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @AnonymousAllowed
+@JsModule("@vaadin/vaadin-lumo-styles/icons.js")
 public class MainLayout extends AppLayout {
 
+    private static final Logger log = LoggerFactory.getLogger(MainLayout.class);
     private final SecurityUtils securityUtils;
     private final NotificationService notificationService;
+    private static final String STYLE_COLOR = "color";
 
     public MainLayout(SecurityUtils securityUtils, NotificationService notificationService) {
         this.securityUtils = securityUtils;
         this.notificationService = notificationService;
+
+        setPrimarySection(Section.DRAWER);
 
         createHeader();
         createDrawer();
     }
 
     private void createHeader() {
-        H1 logo = new H1("CallForPapers");
-        logo.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.MEDIUM);
-        logo.getStyle().set("color", "var(--lumo-primary-color)");
+        DrawerToggle toggle = new DrawerToggle();
+        toggle.getStyle().set(STYLE_COLOR, "var(--lumo-secondary-text-color)");
 
-        Span tenantBadge = new Span("JUGBAQ");
-        tenantBadge.getElement().getThemeList().add("badge");
+        HorizontalLayout actionsLayout = new HorizontalLayout();
+        actionsLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        actionsLayout.addClassNames(LumoUtility.Gap.SMALL);
 
-        HorizontalLayout header = new HorizontalLayout(new DrawerToggle(), logo, tenantBadge);
-        header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-        header.expand(logo);
-        header.setWidthFull();
-        header.addClassNames(LumoUtility.Padding.Vertical.NONE, LumoUtility.Padding.Horizontal.MEDIUM);
-
-        // Auth section en el header
         Optional<CfpUserDetails> user = securityUtils.getAuthenticatedUser();
         if (user.isPresent()) {
             String fullName = user.get().getFullName();
 
-            // --- 1. Botón de Modo Oscuro ---
             Button themeToggle = new Button(VaadinIcon.MOON_O.create(), click -> {
                 var themeList = UI.getCurrent().getElement().getThemeList();
                 if (themeList.contains(Lumo.DARK)) {
                     themeList.remove(Lumo.DARK);
-                    click.getSource().setIcon(VaadinIcon.MOON_O.create()); // Pone la luna
+                    click.getSource().setIcon(VaadinIcon.MOON_O.create());
                 } else {
                     themeList.add(Lumo.DARK);
-                    click.getSource().setIcon(VaadinIcon.SUN_O.create()); // Pone el sol
+                    click.getSource().setIcon(VaadinIcon.SUN_O.create());
                 }
             });
-            themeToggle.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
-            themeToggle.setTooltipText("Cambiar tema"); // Un tooltip coqueto
+            themeToggle.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+            themeToggle.setTooltipText("Cambiar tema");
 
-            // --- 2. Botón de Notificaciones ---
             long unread = 0;
             try {
                 unread = notificationService.unreadCount(user.get().getUserId());
             } catch (Exception e) {
-                e.printStackTrace();
+                log.warn(
+                        "No se pudo obtener el conteo de notificaciones para el usuario {}: {}",
+                        user.get().getUserId(),
+                        e.getMessage());
             }
-            Icon bellIcon = VaadinIcon.BELL.create();
-            Button notifBtn = new Button(unread > 0 ? String.valueOf(unread) : "", bellIcon);
-            notifBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
-            if (unread > 0) {
-                notifBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            }
+
+            Button notifBtn = new Button(VaadinIcon.BELL_O.create());
+            notifBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
             notifBtn.addClickListener(e -> notifBtn.getUI().ifPresent(ui -> ui.navigate("t/jugbaq/notifications")));
 
-            // --- 3. Avatar y Nombre (Paso 2) ---
+            Div notifWrapper = new Div(notifBtn);
+            notifWrapper.getStyle().set("position", "relative");
+
+            if (unread > 0) {
+                Span badge = new Span(String.valueOf(unread));
+                badge.getElement().getThemeList().add("badge error primary small pill");
+                badge.getStyle()
+                        .set("position", "absolute")
+                        .set("top", "-4px")
+                        .set("right", "-4px")
+                        .set("padding", "0 4px");
+                notifWrapper.add(badge);
+            }
+
             Avatar avatar = new Avatar(fullName);
             avatar.setColorIndex(Math.abs(fullName.hashCode() % 7));
+            avatar.addClassNames(LumoUtility.Margin.Left.SMALL);
 
             Span userName = new Span(fullName);
-            // Solo le dejamos el tamaño y la fuente, y borramos la línea del HIDDEN
-            userName.addClassNames(LumoUtility.FontSize.SMALL, LumoUtility.FontWeight.MEDIUM);
+            userName.addClassNames(
+                    LumoUtility.FontSize.SMALL,
+                    LumoUtility.FontWeight.MEDIUM,
+                    LumoUtility.Display.HIDDEN,
+                    LumoUtility.Display.Breakpoint.Small.FLEX);
 
-            HorizontalLayout profileInfo = new HorizontalLayout(avatar, userName);
-            profileInfo.setAlignItems(FlexComponent.Alignment.CENTER);
-            profileInfo.setSpacing(true);
+            Button logoutBtn = new Button(VaadinIcon.SIGN_OUT.create(), event -> securityUtils.logout());
+            logoutBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_ERROR);
+            logoutBtn.setTooltipText("Cerrar sesión");
 
-            // --- 4. Botón de Salir ---
-            Button logoutBtn = new Button("Salir", event -> securityUtils.logout());
-            logoutBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
-
-            // Añadimos todo al header en orden
-            header.add(themeToggle, notifBtn, profileInfo, logoutBtn);
+            actionsLayout.add(themeToggle, notifWrapper, avatar, userName, logoutBtn);
         } else {
             Anchor loginLink = new Anchor("/login", "Iniciar sesión");
-            header.add(loginLink);
+            loginLink.addClassNames(LumoUtility.FontWeight.SEMIBOLD);
+            actionsLayout.add(loginLink);
         }
 
-        addToNavbar(header);
+        Header header = new Header(toggle, actionsLayout);
+        header.setWidthFull();
+        header.addClassNames(
+                LumoUtility.Display.FLEX,
+                LumoUtility.AlignItems.CENTER,
+                LumoUtility.JustifyContent.BETWEEN,
+                LumoUtility.Padding.End.MEDIUM,
+                LumoUtility.Padding.Vertical.SMALL,
+                LumoUtility.BoxShadow.XSMALL);
+        header.getStyle().set("background", "var(--lumo-base-color)");
+
+        addToNavbar(false, header);
     }
 
     private void createDrawer() {
-        SideNav publicNav = new SideNav();
-        publicNav.addItem(new SideNavItem("Eventos", "/t/jugbaq/events"));
-        publicNav.addItem(new SideNavItem("Speakers", "/t/jugbaq/speakers"));
 
-        VerticalLayout drawerContent = new VerticalLayout(publicNav);
+        H1 logo = new H1("CallForPapers");
+        logo.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE, LumoUtility.FontWeight.BOLD);
+        logo.getStyle().set(STYLE_COLOR, "var(--lumo-primary-color)");
+
+        Span tenantBadge = new Span("JUGBAQ");
+        tenantBadge.getElement().getThemeList().add("badge primary");
+        tenantBadge.addClassNames(LumoUtility.Margin.Left.SMALL, LumoUtility.FontSize.XXSMALL);
+
+        HorizontalLayout brandLayout = new HorizontalLayout(logo, tenantBadge);
+        brandLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        brandLayout.addClassNames(LumoUtility.Padding.MEDIUM, LumoUtility.Margin.Bottom.SMALL);
+        brandLayout.setSpacing(false);
+
+        VerticalLayout drawerContent = new VerticalLayout();
         drawerContent.setSizeFull();
         drawerContent.setPadding(false);
         drawerContent.setSpacing(false);
+
+        SideNav publicNav = new SideNav();
+        publicNav.addItem(new SideNavItem("Eventos", "/t/jugbaq/events", VaadinIcon.CALENDAR.create()));
+        publicNav.addItem(new SideNavItem("Speakers", "/t/jugbaq/speakers", VaadinIcon.USERS.create()));
+
+        drawerContent.add(createSectionHeader("Explorar"), publicNav);
 
         Optional<CfpUserDetails> user = securityUtils.getAuthenticatedUser();
         if (user.isPresent()) {
@@ -136,31 +177,36 @@ public class MainLayout extends AppLayout {
             }
         }
 
-        addToDrawer(drawerContent);
+        Scroller scroller = new Scroller(drawerContent);
+
+        addToDrawer(brandLayout, scroller);
     }
 
     private H2 createSectionHeader(String text) {
         H2 header = new H2(text);
         header.addClassNames(
                 LumoUtility.FontSize.XSMALL,
-                LumoUtility.Margin.Top.MEDIUM,
-                LumoUtility.Margin.Bottom.XSMALL,
-                LumoUtility.Padding.Horizontal.MEDIUM);
-        header.getStyle().set("color", "var(--lumo-secondary-text-color)");
+                LumoUtility.Margin.Top.LARGE,
+                LumoUtility.Margin.Bottom.SMALL,
+                LumoUtility.Padding.Horizontal.MEDIUM,
+                LumoUtility.TextTransform.UPPERCASE,
+                LumoUtility.FontWeight.BOLD);
+        header.getStyle().set(STYLE_COLOR, "var(--lumo-tertiary-text-color)");
         return header;
     }
 
     private SideNav createSpeakerNav() {
         SideNav nav = new SideNav();
-        nav.addItem(new SideNavItem("Mis propuestas", "/t/jugbaq/my-submissions"));
-        nav.addItem(new SideNavItem("Mi perfil", "/t/jugbaq/my-profile"));
+        nav.addItem(new SideNavItem("Mis propuestas", "/t/jugbaq/my-submissions", VaadinIcon.MICROPHONE.create()));
+        nav.addItem(new SideNavItem("Mi perfil", "/t/jugbaq/my-profile", VaadinIcon.USER_CARD.create()));
         return nav;
     }
 
     private SideNav createOrganizerNav() {
         SideNav nav = new SideNav();
-        nav.addItem(new SideNavItem("Gestionar eventos", "/t/jugbaq/admin/events"));
-        nav.addItem(new SideNavItem("Revisar propuestas", "/t/jugbaq/admin/reviews"));
+        nav.addItem(new SideNavItem("Gestionar eventos", "/t/jugbaq/admin/events", VaadinIcon.COG.create()));
+        nav.addItem(
+                new SideNavItem("Revisar propuestas", "/t/jugbaq/admin/reviews", VaadinIcon.CHECK_SQUARE_O.create()));
         return nav;
     }
 }

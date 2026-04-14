@@ -24,6 +24,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Route("register")
 @PageTitle("Call For Papers - Registro de Speaker")
@@ -31,6 +33,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 @Uses(Icon.class)
 public class RegisterView extends HorizontalLayout {
 
+    private static final Logger log = LoggerFactory.getLogger(RegisterView.class);
     private final UserRegistrationService registrationService;
     private final RateLimitService rateLimitService;
 
@@ -149,7 +152,7 @@ public class RegisterView extends HorizontalLayout {
 
             } catch (Exception e) {
                 showError("Hubo un error al crear la cuenta. Intenta nuevamente.");
-                e.printStackTrace();
+                log.error("Error al registrar el usuario con email {}: {}", email, e.getMessage(), e);
             }
         });
 
