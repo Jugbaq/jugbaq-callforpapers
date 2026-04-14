@@ -1,7 +1,7 @@
 package com.jugbaq.cfp.users.profile;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Java6Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.jugbaq.cfp.TestcontainersConfiguration;
 import com.jugbaq.cfp.users.domain.User;
@@ -61,7 +61,7 @@ class SpeakerProfileServiceTest {
 
         assertThatThrownBy(() -> profileService.updateProfile(userId, data))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("URL inválida");
+                .hasMessageContaining("La URL debe iniciar con http o https");
     }
 
     @Test
@@ -94,7 +94,7 @@ class SpeakerProfileServiceTest {
 
         reloaded = userRepository.findById(userId).orElseThrow();
         assertThat(reloaded.getSpeakerProfile().getSocialLinks()).hasSize(1);
-        assertThat(reloaded.getSpeakerProfile().getSocialLinks().get(0).getPlatform())
+        assertThat(reloaded.getSpeakerProfile().getSocialLinks().getFirst().getPlatform())
                 .isEqualTo("LINKEDIN");
     }
 
