@@ -12,7 +12,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -144,6 +143,6 @@ public class SpeakerProfile extends BaseEntity {
     }
 
     public List<SpeakerSocialLink> getSocialLinks() {
-        return Collections.unmodifiableList(socialLinks);
+        return socialLinks;
     }
 }
