@@ -55,3 +55,8 @@ tasks:
     deps: [start-infra]
     cmds:
       - "{{.MVNW}} spring-boot:run"
+
+  sonar:
+    desc: "Corre el análisis de SonarQube localmente"
+    cmds:
+      - ./mvnw verify sonar:sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.login={{.SONAR_TOKEN}}

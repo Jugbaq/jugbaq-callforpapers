@@ -65,4 +65,9 @@ public class EventService {
             return event;
         });
     }
+
+    @Transactional(readOnly = true)
+    public Event getEventWithTracksBySlug(String slug) {
+        return repository.findBySlugWithTracks(slug).orElse(null);
+    }
 }

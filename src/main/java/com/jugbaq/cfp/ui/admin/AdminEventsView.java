@@ -70,6 +70,11 @@ public class AdminEventsView extends VerticalLayout {
                 actions.add(btn);
             }
         }
+        Button agendaBtn = new Button("📅 Agenda", e -> actions.getUI()
+                .ifPresent(ui -> ui.navigate("t/jugbaq/admin/agenda/" + event.getSlug())));
+        agendaBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        actions.add(agendaBtn);
+
         return actions;
     }
 

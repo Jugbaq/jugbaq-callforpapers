@@ -1,7 +1,6 @@
 package com.jugbaq.cfp.publishing;
 
 import com.jugbaq.cfp.events.domain.Event;
-import com.jugbaq.cfp.publishing.domain.AgendaSlot;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -14,7 +13,7 @@ public final class ICalGenerator {
 
     private ICalGenerator() {}
 
-    public static String generate(Event event, List<AgendaSlot> slots) {
+    public static String generate(Event event, List<AgendaSlotSummary> slots) {
         StringBuilder sb = new StringBuilder();
         sb.append("BEGIN:VCALENDAR\r\n");
         sb.append("VERSION:2.0\r\n");
@@ -23,25 +22,23 @@ public final class ICalGenerator {
         sb.append("METHOD:PUBLISH\r\n");
         sb.append("X-WR-CALNAME:").append(escape(event.getName())).append("\r\n");
 
-        for (AgendaSlot slot : slots) {
+        for (AgendaSlotSummary slot : slots) {
             sb.append("BEGIN:VEVENT\r\n");
-            sb.append("UID:").append(slot.getId()).append("@jugbaq.dev\r\n");
+            sb.append("UID:").append(slot.id()).append("@jugbaq.dev\r\n");
             sb.append("DTSTAMP:").append(ICAL_DT.format(Instant.now())).append("\r\n");
-            sb.append("DTSTART:").append(ICAL_DT.format(slot.getStartsAt())).append("\r\n");
-            sb.append("DTEND:").append(ICAL_DT.format(slot.getEndsAt())).append("\r\n");
+            sb.append("DTSTART:").append(ICAL_DT.format(slot.startsAt())).append("\r\n");
+            sb.append("DTEND:").append(ICAL_DT.format(slot.endsAt())).append("\r\n");
             sb.append("SUMMARY:").append(escape(slot.displayTitle())).append("\r\n");
 
-            if (slot.getSubmission() != null && slot.getSubmission().getAbstractText() != null) {
-                sb.append("DESCRIPTION:")
-                        .append(escape(slot.getSubmission().getAbstractText()))
-                        .append("\r\n");
+            if (slot.abstractText() != null && !slot.abstractText().isBlank()) {
+                sb.append("DESCRIPTION:").append(escape(slot.abstractText())).append("\r\n");
             }
-            if (slot.getTrack() != null) {
-                sb.append("CATEGORIES:")
-                        .append(escape(slot.getTrack().getName()))
-                        .append("\r\n");
+
+            if (slot.trackName() != null && !slot.trackName().isBlank()) {
+                sb.append("CATEGORIES:").append(escape(slot.trackName())).append("\r\n");
             }
-            if (event.getLocation() != null) {
+
+            if (event.getLocation() != null && !event.getLocation().isBlank()) {
                 sb.append("LOCATION:").append(escape(event.getLocation())).append("\r\n");
             }
             sb.append("END:VEVENT\r\n");

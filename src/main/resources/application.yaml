@@ -2,6 +2,11 @@ spring:
   application:
     name: callforpapers
 
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
   datasource:
     url: jdbc:postgresql://localhost:5432/callforpapers
     username: cfp
@@ -60,17 +65,86 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health, info, metrics
+      base-path: /actuator
   endpoint:
     health:
       show-details: when_authorized
+      show-components: when_authorized
+  info:
+    env:
+      enabled: true
+    java:
+      enabled: true
+
+info:
+  app:
+    name: ${spring.application.name}
+    version: "@project.version@"
 
 cfp:
   mail:
     from: noreply@jugbaq.dev
   base-url: http://localhost:8080
+  storage:
+    avatars-path: ./data/avatars
+    max-avatar-size: 2097152  # 2 MB
 
 logging:
   level:
     com.jugbaq.cfp: DEBUG
     org.hibernate.SQL: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+
+  jpa:
+    properties:
+      hibernate:
+        format_sql: false
+
+  mail:
+    host: ${SMTP_HOST}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USER}
+    password: ${SMTP_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+          github:
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
+
+vaadin:
+  productionMode: true
+
+cfp:
+  base-url: ${BASE_URL}
+  mail:
+    from: ${MAIL_FROM:noreply@jugbaq.dev}
+  storage:
+    avatars-path: ${AVATARS_PATH:/opt/cfp/data/avatars}
+
+logging:
+  level:
+    com.jugbaq.cfp: INFO
+    org.hibernate.SQL: WARN

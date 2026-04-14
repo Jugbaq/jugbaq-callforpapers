@@ -23,5 +23,21 @@ services:
       - "1025:1025"   # SMTP
       - "8025:8025"   # Web UI
 
+  # --- Agregado: SonarQube para análisis local ---
+  sonarqube:
+    image: sonarqube:lts-community
+    container_name: cfp-sonarqube
+    ports:
+      - "9000:9000"
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+
 volumes:
   cfp_pgdata:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:

@@ -141,18 +141,13 @@ public class AgendaService {
     }
 
     @Transactional(readOnly = true)
-    public List<AgendaSlot> listForEvent(UUID eventId) {
-        return slotRepository.findByEventOrdered(eventId);
-    }
-
-    @Transactional(readOnly = true)
     public Optional<AgendaSlot> findById(UUID slotId) {
         return slotRepository.findById(slotId);
     }
 
     // --- Validaciones ---
-
     private void validateNoConflicts(AgendaSlot slot, UUID excludeSlotId) {
+        // Usamos Entidades aquí para la lógica de negocio
         List<AgendaSlot> existing =
                 slotRepository.findByEventOrdered(slot.getEvent().getId());
 
@@ -178,5 +173,12 @@ public class AgendaService {
                 }
             }
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<AgendaSlotSummary> listForEvent(UUID eventId) {
+        return slotRepository.findAllByEventIdWithDetails(eventId).stream()
+                .map(AgendaSlotSummary::from)
+                .toList();
     }
 }

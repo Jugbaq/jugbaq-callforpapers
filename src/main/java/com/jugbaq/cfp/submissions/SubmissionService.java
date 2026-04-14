@@ -2,6 +2,9 @@ package com.jugbaq.cfp.submissions;
 
 import com.jugbaq.cfp.events.domain.Event;
 import com.jugbaq.cfp.events.domain.EventRepository;
+import com.jugbaq.cfp.shared.ratelimit.RateLimitException;
+import com.jugbaq.cfp.shared.ratelimit.RateLimitService;
+import com.jugbaq.cfp.shared.security.HtmlSanitizer;
 import com.jugbaq.cfp.shared.tenant.TenantContext;
 import com.jugbaq.cfp.submissions.domain.CfpClosedException;
 import com.jugbaq.cfp.submissions.domain.Submission;
@@ -23,14 +26,20 @@ public class SubmissionService {
     private final SubmissionRepository repository;
     private final EventRepository eventRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final RateLimitService rateLimitService;
+    private final HtmlSanitizer sanitizer;
 
     public SubmissionService(
             SubmissionRepository repository,
             EventRepository eventRepository,
-            ApplicationEventPublisher eventPublisher) {
+            ApplicationEventPublisher eventPublisher,
+            RateLimitService rateLimitService,
+            HtmlSanitizer sanitizer) {
         this.repository = repository;
         this.eventRepository = eventRepository;
         this.eventPublisher = eventPublisher;
+        this.rateLimitService = rateLimitService;
+        this.sanitizer = sanitizer;
     }
 
     /**
@@ -38,6 +47,9 @@ public class SubmissionService {
      * Valida que el CFP esté abierto y que el speaker no haya excedido el límite.
      */
     public Submission createDraft(UUID eventId, UUID speakerId, SubmissionData data) {
+        if (!rateLimitService.submissionBucket(speakerId.toString()).tryConsume(1)) {
+            throw new RateLimitException("Has enviado demasiadas propuestas. Intenta más tarde.");
+        }
         Event event = eventRepository
                 .findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado"));
@@ -55,6 +67,10 @@ public class SubmissionService {
 
         UUID tenantId = TenantContext.requireTenantId();
         Submission submission = new Submission(tenantId, event, speakerId, data.getTitle(), data.getAbstractText());
+        String cleanTitle = sanitizer.sanitizePlainText(data.getTitle());
+        String cleanAbstract = sanitizer.sanitizeBasic(data.getAbstractText());
+        String cleanPitch = sanitizer.sanitizeBasic(data.getPitch());
+
         submission.updateContent(
                 data.getTitle(), data.getAbstractText(), data.getPitch(), data.getLevel(), data.getTags());
 
@@ -92,6 +108,10 @@ public class SubmissionService {
 
     public Submission updateDraft(UUID submissionId, UUID speakerId, SubmissionData data) {
         Submission submission = loadOwned(submissionId, speakerId);
+        String cleanTitle = sanitizer.sanitizePlainText(data.getTitle());
+        String cleanAbstract = sanitizer.sanitizeBasic(data.getAbstractText());
+        String cleanPitch = sanitizer.sanitizeBasic(data.getPitch());
+
         submission.updateContent(
                 data.getTitle(), data.getAbstractText(), data.getPitch(), data.getLevel(), data.getTags());
         applyFormatAndTrack(submission, submission.getEvent(), data);

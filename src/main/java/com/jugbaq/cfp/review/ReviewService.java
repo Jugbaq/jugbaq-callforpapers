@@ -6,6 +6,7 @@ import com.jugbaq.cfp.review.domain.ReviewDiscussionRepository;
 import com.jugbaq.cfp.review.domain.ReviewNotAllowedInStateException;
 import com.jugbaq.cfp.review.domain.ReviewRepository;
 import com.jugbaq.cfp.review.domain.SelfReviewNotAllowedException;
+import com.jugbaq.cfp.shared.security.HtmlSanitizer;
 import com.jugbaq.cfp.shared.tenant.TenantContext;
 import com.jugbaq.cfp.submissions.domain.Submission;
 import com.jugbaq.cfp.submissions.domain.SubmissionRepository;
@@ -27,16 +28,19 @@ public class ReviewService {
     private final ReviewDiscussionRepository discussionRepository;
     private final SubmissionRepository submissionRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final HtmlSanitizer sanitizer;
 
     public ReviewService(
             ReviewRepository reviewRepository,
             ReviewDiscussionRepository discussionRepository,
             SubmissionRepository submissionRepository,
-            ApplicationEventPublisher eventPublisher) {
+            ApplicationEventPublisher eventPublisher,
+            HtmlSanitizer sanitizer) {
         this.reviewRepository = reviewRepository;
         this.discussionRepository = discussionRepository;
         this.submissionRepository = submissionRepository;
         this.eventPublisher = eventPublisher;
+        this.sanitizer = sanitizer;
     }
 
     /**
@@ -111,7 +115,8 @@ public class ReviewService {
         if (message == null || message.isBlank()) {
             throw new IllegalArgumentException("El mensaje no puede estar vacío");
         }
-        return discussionRepository.save(new ReviewDiscussion(submissionId, authorId, message));
+        String clean = sanitizer.sanitizeBasic(message);
+        return discussionRepository.save(new ReviewDiscussion(submissionId, authorId, clean));
     }
 
     @Transactional(readOnly = true)
