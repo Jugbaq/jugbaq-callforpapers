@@ -1,6 +1,5 @@
 package com.jugbaq.cfp.shared.logging;
 
-
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

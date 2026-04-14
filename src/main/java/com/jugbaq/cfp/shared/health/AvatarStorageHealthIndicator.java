@@ -1,21 +1,19 @@
 package com.jugbaq.cfp.shared.health;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @Component
 public class AvatarStorageHealthIndicator implements HealthIndicator {
 
     private final Path storagePath;
 
-    public AvatarStorageHealthIndicator(
-            @Value("${cfp.storage.avatars-path:./data/avatars}") String path) {
+    public AvatarStorageHealthIndicator(@Value("${cfp.storage.avatars-path:./data/avatars}") String path) {
         this.storagePath = Paths.get(path).toAbsolutePath();
     }
 
@@ -32,8 +30,6 @@ public class AvatarStorageHealthIndicator implements HealthIndicator {
                     .withDetail("reason", "Storage path is not writable")
                     .build();
         }
-        return Health.up()
-                .withDetail("path", storagePath.toString())
-                .build();
+        return Health.up().withDetail("path", storagePath.toString()).build();
     }
 }
