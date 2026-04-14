@@ -8,7 +8,6 @@ import com.jugbaq.cfp.users.domain.UserRepository;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,11 +69,6 @@ public class SpeakerProfileService {
             profile.addSocialLink(link.getPlatform(), link.getUrl().trim());
         }
         userRepository.save(user);
-    }
-
-    @Transactional(readOnly = true)
-    public Optional<User> findUserForPublicProfile(UUID userId) {
-        return userRepository.findById(userId);
     }
 
     private void validateUrl(String url) {
@@ -169,8 +163,6 @@ public class SpeakerProfileService {
     public static class SocialLinkData {
         private String platform;
         private String url;
-
-        public SocialLinkData() {}
 
         public SocialLinkData(String platform, String url) {
             this.platform = platform;
