@@ -58,16 +58,16 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Event> findBySlugWithDetails(String slug) {
-        return repository.findBySlug(slug).map(event -> {
-            event.getFormats().size();
-            event.getTracks().size();
-            return event;
-        });
+    public Event getEventWithTracksBySlug(String slug) {
+        return repository.findBySlugWithTracks(slug).orElse(null);
     }
 
     @Transactional(readOnly = true)
-    public Event getEventWithTracksBySlug(String slug) {
-        return repository.findBySlugWithTracks(slug).orElse(null);
+    public Optional<Event> findBySlugWithDetails(String slug) {
+        return repository.findBySlug(slug).map(event -> {
+            event.getFormats().forEach(f -> {});
+            event.getTracks().forEach(t -> {});
+            return event;
+        });
     }
 }

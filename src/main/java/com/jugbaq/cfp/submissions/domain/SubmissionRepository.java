@@ -20,7 +20,11 @@ public interface SubmissionRepository extends JpaRepository<Submission, UUID> {
             + "ORDER BY s.createdAt DESC")
     List<Submission> findBySpeakerIdOrderByCreatedAtDesc(@Param("speakerId") UUID speakerId);
 
+    @EntityGraph(attributePaths = {"event", "track", "format", "tags"})
     List<Submission> findByEventIdAndStatusOrderByCreatedAtDesc(UUID eventId, SubmissionStatus status);
+
+    @EntityGraph(attributePaths = {"event", "track", "format", "tags"})
+    List<Submission> findByStatusOrderByCreatedAtDesc(SubmissionStatus status);
 
     @EntityGraph(attributePaths = {"event", "track", "format", "tags"})
     List<Submission> findByStatusInOrderByCreatedAtDesc(List<SubmissionStatus> statuses);

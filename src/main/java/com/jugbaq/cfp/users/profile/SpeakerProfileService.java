@@ -16,7 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class SpeakerProfileService {
 
-    private static final Pattern URL_PATTERN = Pattern.compile("^https?://[\\w.-]+(?:\\.[\\w.-]+)+[/#?]?.*$");
+    private static final Pattern URL_PATTERN = Pattern.compile("^https?://[\\w-]+(?:\\.[\\w-]+)+[/#?]?.*$");
+    private static final String USER_NOT_FOUND_MSG = "Usuario no encontrado";
 
     private final UserRepository userRepository;
     private final HtmlSanitizer sanitizer;
@@ -27,9 +28,7 @@ public class SpeakerProfileService {
     }
 
     public SpeakerProfile updateProfile(UUID userId, ProfileUpdateData data) {
-        User user = userRepository
-                .findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND_MSG));
 
         user.initSpeakerProfile();
         SpeakerProfile profile = user.getSpeakerProfile();
@@ -38,7 +37,6 @@ public class SpeakerProfileService {
         profile.setBio(sanitizer.sanitizeBasic(trimOrNull(data.getBio())));
         profile.setCompany(sanitizer.sanitizePlainText(trimOrNull(data.getCompany())));
         profile.setJobTitle(sanitizer.sanitizePlainText(trimOrNull(data.getJobTitle())));
-        profile.setJobTitle(trimOrNull(data.getJobTitle()));
         profile.setCity(sanitizer.sanitizePlainText(trimOrNull(data.getCity())));
         profile.setCountry(sanitizer.sanitizePlainText(trimOrNull(data.getCountry())));
 
@@ -54,18 +52,14 @@ public class SpeakerProfileService {
     }
 
     public void setAvatar(UUID userId, String relativePath) {
-        User user = userRepository
-                .findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND_MSG));
         user.initSpeakerProfile();
         user.getSpeakerProfile().setPhotoUrl(relativePath);
         userRepository.save(user);
     }
 
     public void replaceSocialLinks(UUID userId, List<SocialLinkData> links) {
-        User user = userRepository
-                .findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND_MSG));
         user.initSpeakerProfile();
         SpeakerProfile profile = user.getSpeakerProfile();
 
@@ -193,9 +187,7 @@ public class SpeakerProfileService {
 
     @Transactional(readOnly = true)
     public SpeakerSummary getSpeakerSummary(UUID userId) {
-        User user = userRepository
-                .findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND_MSG));
         user.initSpeakerProfile();
         return SpeakerSummary.from(user);
     }
