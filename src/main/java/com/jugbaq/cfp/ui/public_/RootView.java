@@ -1,5 +1,6 @@
 package com.jugbaq.cfp.ui.public_;
 
+import com.jugbaq.cfp.shared.tenant.TenantRouteHelper;
 import com.jugbaq.cfp.users.security.SecurityUtils;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -21,7 +22,7 @@ public class RootView extends VerticalLayout implements BeforeEnterObserver {
     public void beforeEnter(BeforeEnterEvent event) {
         // 1. Si el usuario YA inició sesión, lo mandamos directo a los eventos
         if (securityUtils.getAuthenticatedUser().isPresent()) {
-            event.forwardTo("/t/jugbaq/events");
+            event.forwardTo(TenantRouteHelper.absoluteTenantPath("events"));
         }
         // 2. Si NO ha iniciado sesión (es un anónimo), lo tiramos de cabeza al Login
         else {

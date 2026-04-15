@@ -1,6 +1,8 @@
 package com.jugbaq.cfp.ui.layout;
 
 import com.jugbaq.cfp.notifications.NotificationService;
+import com.jugbaq.cfp.shared.tenant.TenantContext;
+import com.jugbaq.cfp.shared.tenant.TenantRouteHelper;
 import com.jugbaq.cfp.users.security.CfpUserDetails;
 import com.jugbaq.cfp.users.security.SecurityUtils;
 import com.vaadin.flow.component.UI;
@@ -86,7 +88,8 @@ public class MainLayout extends AppLayout {
 
             Button notifBtn = new Button(VaadinIcon.BELL_O.create());
             notifBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-            notifBtn.addClickListener(e -> notifBtn.getUI().ifPresent(ui -> ui.navigate("t/jugbaq/notifications")));
+            notifBtn.addClickListener(
+                    e -> notifBtn.getUI().ifPresent(ui -> ui.navigate(TenantRouteHelper.tenantPath("notifications"))));
 
             Div notifWrapper = new Div(notifBtn);
             notifWrapper.getStyle().set("position", "relative");
@@ -144,7 +147,7 @@ public class MainLayout extends AppLayout {
         logo.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE, LumoUtility.FontWeight.BOLD);
         logo.getStyle().set(STYLE_COLOR, "var(--lumo-primary-color)");
 
-        Span tenantBadge = new Span("JUGBAQ");
+        Span tenantBadge = new Span(TenantContext.getTenantSlug().orElse("CFP").toUpperCase());
         tenantBadge.getElement().getThemeList().add("badge primary");
         tenantBadge.addClassNames(LumoUtility.Margin.Left.SMALL, LumoUtility.FontSize.XXSMALL);
 
@@ -159,8 +162,10 @@ public class MainLayout extends AppLayout {
         drawerContent.setSpacing(false);
 
         SideNav publicNav = new SideNav();
-        publicNav.addItem(new SideNavItem("Eventos", "/t/jugbaq/events", VaadinIcon.CALENDAR.create()));
-        publicNav.addItem(new SideNavItem("Speakers", "/t/jugbaq/speakers", VaadinIcon.USERS.create()));
+        publicNav.addItem(new SideNavItem(
+                "Eventos", TenantRouteHelper.absoluteTenantPath("events"), VaadinIcon.CALENDAR.create()));
+        publicNav.addItem(new SideNavItem(
+                "Speakers", TenantRouteHelper.absoluteTenantPath("speakers"), VaadinIcon.USERS.create()));
 
         drawerContent.add(createSectionHeader("Explorar"), publicNav);
 
@@ -197,16 +202,23 @@ public class MainLayout extends AppLayout {
 
     private SideNav createSpeakerNav() {
         SideNav nav = new SideNav();
-        nav.addItem(new SideNavItem("Mis propuestas", "/t/jugbaq/my-submissions", VaadinIcon.MICROPHONE.create()));
-        nav.addItem(new SideNavItem("Mi perfil", "/t/jugbaq/my-profile", VaadinIcon.USER_CARD.create()));
+        nav.addItem(new SideNavItem(
+                "Mis propuestas",
+                TenantRouteHelper.absoluteTenantPath("my-submissions"),
+                VaadinIcon.MICROPHONE.create()));
+        nav.addItem(new SideNavItem(
+                "Mi perfil", TenantRouteHelper.absoluteTenantPath("my-profile"), VaadinIcon.USER_CARD.create()));
         return nav;
     }
 
     private SideNav createOrganizerNav() {
         SideNav nav = new SideNav();
-        nav.addItem(new SideNavItem("Gestionar eventos", "/t/jugbaq/admin/events", VaadinIcon.COG.create()));
-        nav.addItem(
-                new SideNavItem("Revisar propuestas", "/t/jugbaq/admin/reviews", VaadinIcon.CHECK_SQUARE_O.create()));
+        nav.addItem(new SideNavItem(
+                "Gestionar eventos", TenantRouteHelper.absoluteTenantPath("admin/events"), VaadinIcon.COG.create()));
+        nav.addItem(new SideNavItem(
+                "Revisar propuestas",
+                TenantRouteHelper.absoluteTenantPath("admin/reviews"),
+                VaadinIcon.CHECK_SQUARE_O.create()));
         return nav;
     }
 }

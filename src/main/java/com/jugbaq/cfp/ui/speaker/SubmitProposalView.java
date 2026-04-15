@@ -1,5 +1,7 @@
 package com.jugbaq.cfp.ui.speaker;
 
+import static com.jugbaq.cfp.shared.tenant.TenantRouteHelper.tenantPath;
+
 import com.jugbaq.cfp.events.EventService;
 import com.jugbaq.cfp.events.domain.Event;
 import com.jugbaq.cfp.events.domain.EventSessionFormat;
@@ -184,7 +186,7 @@ public class SubmitProposalView extends VerticalLayout implements BeforeEnterObs
                 submissionService.createDraft(event.getId(), speakerId, data);
                 showSuccess("Borrador guardado. Puedes editarlo más tarde.");
             }
-            getUI().ifPresent(ui -> ui.navigate("t/jugbaq/my-submissions"));
+            getUI().ifPresent(ui -> ui.navigate(tenantPath("my-submissions")));
         } catch (CfpClosedException ex) {
             showError("El CFP de este evento ya no está abierto");
         } catch (SubmissionLimitExceededException ex) {
@@ -225,7 +227,7 @@ public class SubmitProposalView extends VerticalLayout implements BeforeEnterObs
         String eventSlug =
                 beforeEnterEvent.getRouteParameters().get("eventSlug").orElse(null);
         if (eventSlug == null) {
-            beforeEnterEvent.rerouteTo("t/jugbaq/events");
+            beforeEnterEvent.rerouteTo(tenantPath("events"));
             return;
         }
 
