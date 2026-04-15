@@ -1,6 +1,6 @@
 # JUGBAQ Call for Papers
 
-A modern Call for Papers management system for JUGBAQ (Java User Group Buenos Aires), built with Spring Boot and Vaadin.
+A modern Call for Papers management system for JUGBAQ (Java User Group Barranquilla), built with Spring Boot and Vaadin.
 
 ## Features
 
@@ -148,10 +148,13 @@ task infra-down   # Stop infrastructure services
 5. Run SonarQube analysis to ensure quality
 6. Submit a pull request
 
+---
 ## License
 
-[Add your license here]
+Licensed under the [Apache 2.0 License](LICENSE).
 
 ## Contact
 
 JUGBAQ - Java User Group Barranquilla
+🔗 [WebSite:](https://jugbaq.org/)
+
