@@ -1,7 +1,5 @@
 package com.jugbaq.cfp.notifications;
 
-import com.jugbaq.cfp.notifications.domain.Notification;
-import com.jugbaq.cfp.notifications.domain.NotificationRepository;
 import com.jugbaq.cfp.submissions.events.SubmissionAcceptedEvent;
 import com.jugbaq.cfp.submissions.events.SubmissionRejectedEvent;
 import com.jugbaq.cfp.submissions.events.SubmissionSubmittedEvent;
@@ -29,17 +27,17 @@ public class SubmissionNotificationListener {
     private static final Logger log = LoggerFactory.getLogger(SubmissionNotificationListener.class);
 
     private final UserQueryService userQueryService;
-    private final NotificationRepository notificationRepository;
+    private final NotificationService notificationService;
     private final EmailService emailService;
     private final String baseUrl;
 
     public SubmissionNotificationListener(
             UserQueryService userQueryService,
-            NotificationRepository notificationRepository,
+            NotificationService notificationService,
             EmailService emailService,
             @Value("${cfp.base-url:http://localhost:8080}") String baseUrl) {
         this.userQueryService = userQueryService;
-        this.notificationRepository = notificationRepository;
+        this.notificationService = notificationService;
         this.emailService = emailService;
         this.baseUrl = baseUrl;
     }
@@ -64,8 +62,7 @@ public class SubmissionNotificationListener {
         Map<String, Object> payload = Map.of(
                 "submissionId", event.submissionId().toString(),
                 "title", event.title());
-        notificationRepository.save(
-                new Notification(speaker.id(), event.tenantId(), NotificationType.SUBMISSION_RECEIVED, payload));
+        notificationService.create(speaker.id(), event.tenantId(), NotificationType.SUBMISSION_RECEIVED, payload);
 
         Map<String, String> vars = Map.of(
                 "speakerName",
@@ -89,8 +86,8 @@ public class SubmissionNotificationListener {
                     "submissionId", event.submissionId().toString(),
                     "title", event.title(),
                     "speakerName", speaker.fullName());
-            notificationRepository.save(new Notification(
-                    organizer.id(), event.tenantId(), NotificationType.SUBMISSION_NEW_FOR_REVIEW, payload));
+            notificationService.create(
+                    organizer.id(), event.tenantId(), NotificationType.SUBMISSION_NEW_FOR_REVIEW, payload);
 
             Map<String, String> vars = Map.of(
                     "organizerName", organizer.fullName(),
@@ -113,11 +110,11 @@ public class SubmissionNotificationListener {
         SpeakerSummary speaker = userQueryService.getSpeakerInfo(event.speakerId());
         if (speaker == null) return;
 
-        notificationRepository.save(new Notification(
+        notificationService.create(
                 speaker.id(),
                 event.tenantId(),
                 NotificationType.SUBMISSION_ACCEPTED,
-                Map.of("submissionId", event.submissionId().toString(), "title", event.title())));
+                Map.of("submissionId", event.submissionId().toString(), "title", event.title()));
 
         Map<String, String> vars = Map.of(
                 "speakerName",
@@ -141,11 +138,11 @@ public class SubmissionNotificationListener {
         SpeakerSummary speaker = userQueryService.getSpeakerInfo(event.speakerId());
         if (speaker == null) return;
 
-        notificationRepository.save(new Notification(
+        notificationService.create(
                 speaker.id(),
                 event.tenantId(),
                 NotificationType.SUBMISSION_REJECTED,
-                Map.of("submissionId", event.submissionId().toString(), "title", event.title())));
+                Map.of("submissionId", event.submissionId().toString(), "title", event.title()));
 
         String feedbackBlock = (event.feedback() != null && !event.feedback().isBlank())
                 ? "<div style='background:#f5f5f5;padding:16px;border-radius:6px;margin:16px 0;'>"

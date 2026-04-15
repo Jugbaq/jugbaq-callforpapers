@@ -112,6 +112,10 @@ public class AgendaService {
                 .findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado"));
 
+        if (event.getStatus() == EventStatus.CFP_CLOSED) {
+            event.transitionTo(EventStatus.REVIEW);
+        }
+
         if (event.getStatus() != EventStatus.REVIEW) {
             throw new IllegalStateException(
                     "El evento debe estar en REVIEW para publicar. Estado actual: " + event.getStatus());

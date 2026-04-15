@@ -1,6 +1,7 @@
 package com.jugbaq.cfp.submissions.domain;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,4 +32,7 @@ public interface SubmissionRepository extends JpaRepository<Submission, UUID> {
 
     @EntityGraph(attributePaths = {"event", "track", "format", "tags"})
     List<Submission> findByEventIdOrderByCreatedAtDesc(UUID eventId);
+
+    @Query("SELECT DISTINCT s.speakerId FROM Submission s WHERE s.status IN :statuses")
+    Set<UUID> findDistinctSpeakerIdsByStatusIn(@Param("statuses") List<SubmissionStatus> statuses);
 }

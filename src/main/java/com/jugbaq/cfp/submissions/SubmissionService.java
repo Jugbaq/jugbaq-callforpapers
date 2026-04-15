@@ -14,6 +14,7 @@ import com.jugbaq.cfp.submissions.domain.SubmissionStatus;
 import com.jugbaq.cfp.submissions.events.SubmissionSubmittedEvent;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -130,6 +131,13 @@ public class SubmissionService {
     }
 
     @Transactional(readOnly = true)
+    public List<SubmissionSummary> listBySpeakerSummaries(UUID speakerId) {
+        return repository.findBySpeakerIdOrderByCreatedAtDesc(speakerId).stream()
+                .map(SubmissionSummary::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public Optional<Submission> findById(UUID id) {
         return repository.findById(id);
     }
@@ -181,5 +189,18 @@ public class SubmissionService {
                 SubmissionStatus.UNDER_REVIEW,
                 SubmissionStatus.ACCEPTED,
                 SubmissionStatus.REJECTED));
+    }
+
+    @Transactional(readOnly = true)
+    public List<SubmissionSummary> listForReviewSummaries(UUID eventId, SubmissionStatus statusFilter) {
+        return listForReview(eventId, statusFilter).stream()
+                .map(SubmissionSummary::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Set<UUID> findAcceptedSpeakerIds() {
+        return repository.findDistinctSpeakerIdsByStatusIn(
+                List.of(SubmissionStatus.ACCEPTED, SubmissionStatus.CONFIRMED));
     }
 }
