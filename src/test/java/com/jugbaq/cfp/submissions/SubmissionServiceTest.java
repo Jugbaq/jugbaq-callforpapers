@@ -7,6 +7,7 @@ import com.jugbaq.cfp.TestcontainersConfiguration;
 import com.jugbaq.cfp.events.EventService;
 import com.jugbaq.cfp.events.domain.Event;
 import com.jugbaq.cfp.events.domain.EventStatus;
+import com.jugbaq.cfp.review.ReviewService;
 import com.jugbaq.cfp.shared.domain.TenantRepository;
 import com.jugbaq.cfp.shared.tenant.TenantContext;
 import com.jugbaq.cfp.submissions.domain.CfpClosedException;
@@ -20,6 +21,7 @@ import com.jugbaq.cfp.users.domain.User;
 import com.jugbaq.cfp.users.domain.UserRepository;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,6 +53,9 @@ class SubmissionServiceTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    ReviewService reviewService;
 
     private static final UUID ADMIN_ID = UUID.fromString("a0000000-0000-0000-0000-000000000001");
     private UUID speakerId;
@@ -204,6 +209,80 @@ class SubmissionServiceTest {
 
         long count = submissionService.countActiveSubmissionsBySpeaker(openEvent.getId(), speakerId);
         assertThat(count).isEqualTo(2);
+    }
+
+    @Test
+    void should_list_by_speaker_summaries() {
+        submissionService.createDraft(openEvent.getId(), speakerId, buildData("Speaker Summary 1"));
+
+        List<SubmissionSummary> summaries = submissionService.listBySpeakerSummaries(speakerId);
+        assertThat(summaries).isNotEmpty();
+        assertThat(summaries).allSatisfy(s -> {
+            assertThat(s.speakerId()).isEqualTo(speakerId);
+            assertThat(s.id()).isNotNull();
+            assertThat(s.title()).isNotNull();
+            assertThat(s.eventName()).isNotNull();
+        });
+    }
+
+    @Test
+    void should_list_for_review_summaries() {
+        Submission draft = submissionService.createDraft(openEvent.getId(), speakerId, buildData("Review Summary"));
+        submissionService.markAsSubmitted(draft.getId(), speakerId);
+
+        List<SubmissionSummary> summaries =
+                submissionService.listForReviewSummaries(openEvent.getId(), SubmissionStatus.SUBMITTED);
+        assertThat(summaries).isNotEmpty();
+        assertThat(summaries.get(0).status()).isEqualTo(SubmissionStatus.SUBMITTED);
+    }
+
+    @Test
+    void should_find_accepted_speaker_ids() {
+        // Initially no accepted submissions
+        Set<UUID> before = submissionService.findAcceptedSpeakerIds();
+        assertThat(before).isEmpty();
+
+        // Create, submit, review and accept a submission via the proper domain flow
+        SubmissionData data = buildData("Accepted Talk");
+        Submission s = submissionService.createAndSubmit(openEvent.getId(), speakerId, data);
+
+        // Submit a review score then accept — this persists the status change
+        reviewService.submitOrUpdateScore(s.getId(), ADMIN_ID, 5, "Good talk");
+        reviewService.accept(s.getId());
+
+        Set<UUID> after = submissionService.findAcceptedSpeakerIds();
+        assertThat(after).isNotEmpty();
+        assertThat(after).contains(speakerId);
+    }
+
+    @Test
+    void should_map_submission_summary_with_null_format() {
+        Submission draft = submissionService.createDraft(openEvent.getId(), speakerId, buildData("No Format"));
+        SubmissionSummary summary =
+                SubmissionSummary.from(submissionService.findById(draft.getId()).orElseThrow());
+        assertThat(summary.formatName()).isNull();
+        assertThat(summary.tags()).isNotNull();
+    }
+
+    @Test
+    void should_map_submission_summary_with_all_fields() {
+        SubmissionData data = buildData("Full Summary");
+        data.setFormatId(openEvent.getFormats().get(0).getId());
+        data.setTrackId(openEvent.getTracks().get(0).getId());
+        data.setTags(Set.of("java", "spring"));
+
+        Submission draft = submissionService.createDraft(openEvent.getId(), speakerId, data);
+        submissionService.markAsSubmitted(draft.getId(), speakerId);
+
+        Submission reloaded = submissionService.findById(draft.getId()).orElseThrow();
+        SubmissionSummary summary = SubmissionSummary.from(reloaded);
+        assertThat(summary.formatName()).isNotNull();
+        assertThat(summary.tags()).containsExactlyInAnyOrder("java", "spring");
+        assertThat(summary.status()).isEqualTo(SubmissionStatus.SUBMITTED);
+        assertThat(summary.abstractText()).isNotNull();
+        assertThat(summary.pitch()).isNotNull();
+        assertThat(summary.level()).isNotNull();
+        assertThat(summary.submittedAt()).isNotNull();
     }
 
     private SubmissionData buildData(String title) {

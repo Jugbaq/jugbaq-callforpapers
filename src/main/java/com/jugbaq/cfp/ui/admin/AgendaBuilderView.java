@@ -1,5 +1,7 @@
 package com.jugbaq.cfp.ui.admin;
 
+import static com.jugbaq.cfp.shared.tenant.TenantRouteHelper.tenantPath;
+
 import com.jugbaq.cfp.events.EventService;
 import com.jugbaq.cfp.events.domain.Event;
 import com.jugbaq.cfp.events.domain.EventTrack;
@@ -11,7 +13,6 @@ import com.jugbaq.cfp.submissions.SubmissionService;
 import com.jugbaq.cfp.submissions.domain.Submission;
 import com.jugbaq.cfp.submissions.domain.SubmissionStatus;
 import com.jugbaq.cfp.ui.layout.MainLayout;
-import com.jugbaq.cfp.users.SpeakerSummary;
 import com.jugbaq.cfp.users.UserQueryService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -24,8 +25,6 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -38,7 +37,6 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.RolesAllowed;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -98,7 +96,7 @@ public class AgendaBuilderView extends VerticalLayout implements BeforeEnterObse
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
         String slug = beforeEnterEvent.getRouteParameters().get("eventSlug").orElse(null);
         if (slug == null) {
-            beforeEnterEvent.rerouteTo("t/jugbaq/admin/events");
+            beforeEnterEvent.rerouteTo(tenantPath("admin/events"));
             return;
         }
 
@@ -194,7 +192,10 @@ public class AgendaBuilderView extends VerticalLayout implements BeforeEnterObse
                 .toList();
 
         for (AgendaSlotSummary slot : slots) {
-            column.add(buildSlotCard(slot));
+            column.add(new AgendaSlotCard(slot, userQueryService, () -> {
+                agendaService.deleteSlot(slot.id());
+                refresh();
+            }));
         }
 
         // Drop target del track entero
@@ -206,66 +207,6 @@ public class AgendaBuilderView extends VerticalLayout implements BeforeEnterObse
         }));
 
         return column;
-    }
-
-    private Div buildSlotCard(AgendaSlotSummary slot) {
-        Div card = new Div();
-        card.addClassNames(
-                LumoUtility.Padding.SMALL,
-                LumoUtility.BorderRadius.MEDIUM,
-                LumoUtility.Margin.Vertical.XSMALL,
-                LumoUtility.Background.BASE, // Fondo blanco
-                LumoUtility.Display.FLEX,
-                LumoUtility.FlexDirection.COLUMN,
-                LumoUtility.Gap.XSMALL);
-        card.getStyle()
-                .set("border", "1px solid var(--lumo-contrast-10pct)")
-                .set("box-shadow", "var(--lumo-box-shadow-xs)")
-                .set("border-left", "4px solid var(--lumo-primary-color)"); // Detalle de color a la izquierda
-
-        // 1. La hora (pequeñita arriba)
-        Span time = new Span(formatTime(slot.startsAt()) + " — " + formatTime(slot.endsAt()));
-        time.addClassNames(LumoUtility.FontSize.XSMALL, LumoUtility.TextColor.TERTIARY, LumoUtility.FontWeight.BOLD);
-        card.add(time);
-
-        // 2. El Título (Resaltado)
-        Paragraph title = new Paragraph(slot.displayTitle());
-        title.addClassNames(LumoUtility.Margin.NONE, LumoUtility.FontSize.SMALL, LumoUtility.FontWeight.SEMIBOLD);
-        title.getStyle().set("line-height", "1.2");
-        card.add(title);
-
-        // 3. El Nombre del Speaker con VaadinIcon nativo
-        if (slot.speakerId() != null) { // <-- ¡ESTE ERA EL ERROR!
-            // Ahora sí le pasamos el ID del speaker correcto
-            SpeakerSummary speaker = userQueryService.getSpeakerInfo(slot.speakerId());
-            if (speaker != null) {
-                Icon userIcon = VaadinIcon.USER.create();
-                userIcon.setSize("12px");
-                userIcon.getStyle().set("margin-right", "4px");
-
-                Span speakerName = new Span(userIcon, new Span(speaker.fullName()));
-                speakerName.addClassNames(
-                        LumoUtility.Display.FLEX,
-                        LumoUtility.AlignItems.CENTER,
-                        LumoUtility.Margin.NONE,
-                        LumoUtility.FontSize.XSMALL,
-                        LumoUtility.TextColor.SECONDARY);
-
-                card.add(speakerName);
-            }
-        }
-
-        // 4. Botón de eliminar (Sutil abajo a la derecha)
-        Button removeBtn = new Button("Remover", VaadinIcon.TRASH.create(), e -> {
-            agendaService.deleteSlot(slot.id());
-            refresh();
-        });
-        removeBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ERROR);
-        removeBtn.getStyle().set("align-self", "flex-end").set("padding", "0");
-
-        card.add(removeBtn);
-
-        return card;
     }
 
     private void assignSubmissionToTrack(UUID submissionId, EventTrack track) {
@@ -303,10 +244,6 @@ public class AgendaBuilderView extends VerticalLayout implements BeforeEnterObse
 
     private void publish() {
         try {
-            // Si el evento está en CFP_CLOSED, primero pasarlo a REVIEW
-            if (event.getStatus().name().equals("CFP_CLOSED")) {
-                eventService.updateStatus(event.getId(), com.jugbaq.cfp.events.domain.EventStatus.REVIEW);
-            }
             agendaService.publishEvent(event.getId());
             Notification.show("¡Evento publicado!", 3000, Notification.Position.TOP_CENTER)
                     .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
@@ -318,10 +255,5 @@ public class AgendaBuilderView extends VerticalLayout implements BeforeEnterObse
             Notification.show("Error: " + ex.getMessage(), 5000, Notification.Position.TOP_CENTER)
                     .addThemeVariants(NotificationVariant.LUMO_ERROR);
         }
-    }
-
-    private String formatTime(Instant instant) {
-        return instant.atZone(ZoneId.of("America/Bogota"))
-                .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
     }
 }

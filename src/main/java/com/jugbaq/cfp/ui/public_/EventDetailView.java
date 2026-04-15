@@ -1,5 +1,7 @@
 package com.jugbaq.cfp.ui.public_;
 
+import static com.jugbaq.cfp.shared.tenant.TenantRouteHelper.absoluteTenantPath;
+
 import com.jugbaq.cfp.events.EventService;
 import com.jugbaq.cfp.events.domain.Event;
 import com.jugbaq.cfp.events.domain.EventTrack;
@@ -121,7 +123,7 @@ public class EventDetailView extends VerticalLayout implements BeforeEnterObserv
         Button icalBtn = new Button("Añadir al calendario (.ics)", VaadinIcon.DOWNLOAD.create());
         icalBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-        Anchor icalLink = new Anchor("/t/jugbaq/api/events/" + event.getSlug() + "/calendar.ics", "");
+        Anchor icalLink = new Anchor(absoluteTenantPath("api/events/" + event.getSlug() + "/calendar.ics"), "");
         icalLink.add(icalBtn); // Metemos el botón nativo dentro del link
         icalLink.getElement().setAttribute("download", true);
         icalLink.getStyle().set("margin", "16px 0");

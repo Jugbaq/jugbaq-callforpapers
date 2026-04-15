@@ -1,5 +1,7 @@
 package com.jugbaq.cfp.ui.public_;
 
+import static com.jugbaq.cfp.shared.tenant.TenantRouteHelper.tenantPath;
+
 import com.jugbaq.cfp.events.EventService;
 import com.jugbaq.cfp.events.domain.Event;
 import com.jugbaq.cfp.ui.layout.MainLayout;
@@ -160,7 +162,7 @@ public class EventListView extends VerticalLayout {
             submitBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             // Redirigir al formulario
             submitBtn.addClickListener(
-                    e -> submitBtn.getUI().ifPresent(ui -> ui.navigate("t/jugbaq/submit/" + event.getSlug())));
+                    e -> submitBtn.getUI().ifPresent(ui -> ui.navigate(tenantPath("submit/" + event.getSlug()))));
 
             footerRow.add(submitBtn);
         }

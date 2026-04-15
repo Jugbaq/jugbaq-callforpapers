@@ -112,4 +112,27 @@ class EventServiceTest {
         var result = service.findBySlugWithDetails("nonexistent-slug-" + UUID.randomUUID());
         assertThat(result).isEmpty();
     }
+
+    @Test
+    void should_list_all_summaries() {
+        String slug = "summary-" + UUID.randomUUID();
+        service.createEvent(
+                slug,
+                "Summary Event",
+                Instant.now().plusSeconds(86400),
+                UUID.fromString("a0000000-0000-0000-0000-000000000001"));
+
+        List<EventSummary> summaries = service.listAllSummaries();
+        assertThat(summaries).isNotEmpty();
+        assertThat(summaries).anyMatch(s -> s.slug().equals(slug));
+
+        EventSummary match = summaries.stream()
+                .filter(s -> s.slug().equals(slug))
+                .findFirst()
+                .orElseThrow();
+        assertThat(match.name()).isEqualTo("Summary Event");
+        assertThat(match.status()).isEqualTo(EventStatus.DRAFT);
+        assertThat(match.id()).isNotNull();
+        assertThat(match.eventDate()).isNotNull();
+    }
 }

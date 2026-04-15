@@ -1,8 +1,10 @@
 package com.jugbaq.cfp.notifications;
 
+import com.jugbaq.cfp.notifications.domain.Notification;
 import com.jugbaq.cfp.notifications.domain.NotificationRepository;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,5 +37,10 @@ public class NotificationService {
 
     public void markAllAsRead(UUID userId) {
         repository.markAllAsReadByUserId(userId, Instant.now());
+    }
+
+    public void create(UUID userId, UUID tenantId, NotificationType type, Map<String, Object> payload) {
+        Map<String, Object> safePayload = (payload == null) ? Map.of() : Map.copyOf(payload);
+        repository.save(new Notification(userId, tenantId, type, safePayload));
     }
 }

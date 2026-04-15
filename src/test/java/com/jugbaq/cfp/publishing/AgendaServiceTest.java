@@ -311,6 +311,30 @@ class AgendaServiceTest {
     }
 
     @Test
+    void should_auto_transition_cfp_closed_to_review_on_publish() {
+        UUID trackId = event.getTracks().get(0).getId();
+        Instant start = Instant.now().plus(30, ChronoUnit.DAYS);
+
+        agendaService.saveSlot(
+                event.getId(), accepted1.getId(), trackId, start, start.plus(30, ChronoUnit.MINUTES), null);
+        agendaService.saveSlot(
+                event.getId(),
+                accepted2.getId(),
+                trackId,
+                start.plus(31, ChronoUnit.MINUTES),
+                start.plus(60, ChronoUnit.MINUTES),
+                null);
+
+        eventService.updateStatus(event.getId(), EventStatus.CFP_CLOSED);
+        // Do NOT transition to REVIEW manually — publishEvent should do it automatically
+
+        agendaService.publishEvent(event.getId());
+
+        Event reloaded = eventService.findById(event.getId()).orElseThrow();
+        assertThat(reloaded.getStatus()).isEqualTo(EventStatus.PUBLISHED);
+    }
+
+    @Test
     void should_generate_valid_ical() {
         UUID trackId = event.getTracks().get(0).getId();
         Instant start = Instant.parse("2026-05-15T19:00:00Z");

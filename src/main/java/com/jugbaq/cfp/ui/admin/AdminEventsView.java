@@ -1,7 +1,9 @@
 package com.jugbaq.cfp.ui.admin;
 
+import static com.jugbaq.cfp.shared.tenant.TenantRouteHelper.tenantPath;
+
 import com.jugbaq.cfp.events.EventService;
-import com.jugbaq.cfp.events.domain.Event;
+import com.jugbaq.cfp.events.EventSummary;
 import com.jugbaq.cfp.events.domain.EventStatus;
 import com.jugbaq.cfp.ui.layout.MainLayout;
 import com.jugbaq.cfp.users.security.SecurityUtils;
@@ -30,7 +32,7 @@ public class AdminEventsView extends VerticalLayout {
 
     private final EventService eventService;
     private final SecurityUtils securityUtils;
-    private final Grid<Event> grid = new Grid<>(Event.class, false);
+    private final Grid<EventSummary> grid = new Grid<>(EventSummary.class, false);
 
     public AdminEventsView(EventService eventService, SecurityUtils securityUtils) {
         this.eventService = eventService;
@@ -49,20 +51,20 @@ public class AdminEventsView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addColumn(Event::getName).setHeader("Nombre").setAutoWidth(true);
-        grid.addColumn(Event::getSlug).setHeader("Slug");
-        grid.addColumn(e -> e.getEventDate().toString()).setHeader("Fecha");
-        grid.addColumn(e -> e.getStatus().name()).setHeader("Estado");
+        grid.addColumn(EventSummary::name).setHeader("Nombre").setAutoWidth(true);
+        grid.addColumn(EventSummary::slug).setHeader("Slug");
+        grid.addColumn(e -> e.eventDate().toString()).setHeader("Fecha");
+        grid.addColumn(e -> e.status().name()).setHeader("Estado");
         grid.addComponentColumn(this::buildActions).setHeader("Acciones");
         grid.setSizeFull();
     }
 
-    private HorizontalLayout buildActions(Event event) {
+    private HorizontalLayout buildActions(EventSummary event) {
         HorizontalLayout actions = new HorizontalLayout();
         for (EventStatus target : EventStatus.values()) {
-            if (event.getStatus().canTransitionTo(target)) {
+            if (event.status().canTransitionTo(target)) {
                 Button btn = new Button("→ " + target.name(), e -> {
-                    eventService.updateStatus(event.getId(), target);
+                    eventService.updateStatus(event.id(), target);
                     Notification.show("Estado: " + target.name());
                     refresh();
                 });
@@ -71,7 +73,7 @@ public class AdminEventsView extends VerticalLayout {
             }
         }
         Button agendaBtn = new Button("📅 Agenda", e -> actions.getUI()
-                .ifPresent(ui -> ui.navigate("t/jugbaq/admin/agenda/" + event.getSlug())));
+                .ifPresent(ui -> ui.navigate(tenantPath("admin/agenda/" + event.slug()))));
         agendaBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         actions.add(agendaBtn);
 
@@ -113,6 +115,6 @@ public class AdminEventsView extends VerticalLayout {
     }
 
     private void refresh() {
-        grid.setItems(eventService.listAll());
+        grid.setItems(eventService.listAllSummaries());
     }
 }

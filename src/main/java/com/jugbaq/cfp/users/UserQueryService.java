@@ -3,6 +3,7 @@ package com.jugbaq.cfp.users;
 import com.jugbaq.cfp.users.domain.User;
 import com.jugbaq.cfp.users.domain.UserRepository;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,15 @@ public class UserQueryService {
     public List<SpeakerSummary> findOrganizersAndAdmins(UUID tenantId) {
         List<TenantRole> rolesToFind = List.of(TenantRole.ORGANIZER, TenantRole.ADMIN);
         return userRepository.findUsersByTenantAndRoles(tenantId, rolesToFind).stream()
+                .map(SpeakerSummary::from)
+                .toList();
+    }
+
+    public List<SpeakerSummary> getSpeakersById(Set<UUID> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return userRepository.findAllById(ids).stream()
                 .map(SpeakerSummary::from)
                 .toList();
     }

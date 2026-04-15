@@ -1,7 +1,7 @@
 package com.jugbaq.cfp.ui.speaker;
 
 import com.jugbaq.cfp.submissions.SubmissionService;
-import com.jugbaq.cfp.submissions.domain.Submission;
+import com.jugbaq.cfp.submissions.SubmissionSummary;
 import com.jugbaq.cfp.submissions.domain.SubmissionStatus;
 import com.jugbaq.cfp.ui.layout.MainLayout;
 import com.jugbaq.cfp.users.security.SecurityUtils;
@@ -19,7 +19,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
-import java.util.List;
 import java.util.UUID;
 
 @Route(value = "t/:tenantSlug/my-submissions", layout = MainLayout.class)
@@ -29,7 +28,7 @@ public class MySubmissionsView extends VerticalLayout {
 
     private final SubmissionService submissionService;
     private final SecurityUtils securityUtils;
-    private final Grid<Submission> grid = new Grid<>(Submission.class, false);
+    private final Grid<SubmissionSummary> grid = new Grid<>(SubmissionSummary.class, false);
 
     public MySubmissionsView(SubmissionService submissionService, SecurityUtils securityUtils) {
         this.submissionService = submissionService;
@@ -48,21 +47,18 @@ public class MySubmissionsView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addColumn(Submission::getTitle)
+        grid.addColumn(SubmissionSummary::title)
                 .setHeader("Título")
                 .setAutoWidth(true)
                 .setFlexGrow(1);
 
-        grid.addColumn(s -> s.getEvent().getName()).setHeader("Evento").setAutoWidth(true);
+        grid.addColumn(SubmissionSummary::eventName).setHeader("Evento").setAutoWidth(true);
 
         grid.addComponentColumn(this::buildStatusBadge).setHeader("Estado");
 
-        grid.addColumn(s -> s.getFormat() != null ? s.getFormat().getName() : "—")
-                .setHeader("Formato");
+        grid.addColumn(s -> s.formatName() != null ? s.formatName() : "—").setHeader("Formato");
 
-        grid.addColumn(s -> s.getSubmittedAt() != null
-                        ? s.getSubmittedAt().toString().substring(0, 10)
-                        : "Borrador")
+        grid.addColumn(s -> s.submittedAt() != null ? s.submittedAt().toString().substring(0, 10) : "Borrador")
                 .setHeader("Enviado");
 
         grid.addComponentColumn(this::buildActions).setHeader("Acciones").setAutoWidth(true);
@@ -70,11 +66,11 @@ public class MySubmissionsView extends VerticalLayout {
         grid.setSizeFull();
     }
 
-    private Span buildStatusBadge(Submission submission) {
-        Span badge = new Span(submission.getStatus().name());
+    private Span buildStatusBadge(SubmissionSummary submission) {
+        Span badge = new Span(submission.status().name());
         badge.getElement().getThemeList().add("badge");
 
-        switch (submission.getStatus()) {
+        switch (submission.status()) {
             case DRAFT -> badge.getElement().getThemeList().add("contrast");
             case SUBMITTED, UNDER_REVIEW -> badge.getElement().getThemeList().add("primary");
             case ACCEPTED, CONFIRMED -> badge.getElement().getThemeList().add("success");
@@ -84,19 +80,19 @@ public class MySubmissionsView extends VerticalLayout {
         return badge;
     }
 
-    private HorizontalLayout buildActions(Submission submission) {
+    private HorizontalLayout buildActions(SubmissionSummary submission) {
         HorizontalLayout actions = new HorizontalLayout();
         actions.setSpacing(true);
 
         // Botón "Enviar" solo si está en DRAFT
-        if (submission.getStatus() == SubmissionStatus.DRAFT) {
+        if (submission.status() == SubmissionStatus.DRAFT) {
             Button submitBtn = new Button("Enviar", e -> markAsSubmitted(submission));
             submitBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
             actions.add(submitBtn);
         }
 
         // Botón "Retirar" si no está en estado terminal
-        if (!submission.getStatus().isTerminal() && submission.getStatus() != SubmissionStatus.UNDER_REVIEW) {
+        if (!submission.status().isTerminal() && submission.status() != SubmissionStatus.UNDER_REVIEW) {
             Button withdrawBtn = new Button("Retirar", e -> confirmWithdraw(submission));
             withdrawBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ERROR);
             actions.add(withdrawBtn);
@@ -105,10 +101,10 @@ public class MySubmissionsView extends VerticalLayout {
         return actions;
     }
 
-    private void markAsSubmitted(Submission submission) {
+    private void markAsSubmitted(SubmissionSummary submission) {
         UUID speakerId = securityUtils.getCurrentUserId().orElseThrow();
         try {
-            submissionService.markAsSubmitted(submission.getId(), speakerId);
+            submissionService.markAsSubmitted(submission.id(), speakerId);
             Notification.show("Propuesta enviada", 3000, Notification.Position.TOP_CENTER)
                     .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
             refresh();
@@ -118,10 +114,10 @@ public class MySubmissionsView extends VerticalLayout {
         }
     }
 
-    private void confirmWithdraw(Submission submission) {
+    private void confirmWithdraw(SubmissionSummary submission) {
         ConfirmDialog dialog = new ConfirmDialog();
         dialog.setHeader("¿Retirar esta propuesta?");
-        dialog.setText("Vas a retirar '" + submission.getTitle() + "'. Esta acción no se puede deshacer.");
+        dialog.setText("Vas a retirar '" + submission.title() + "'. Esta acción no se puede deshacer.");
         dialog.setCancelable(true);
         dialog.setConfirmText("Sí, retirar");
         dialog.setConfirmButtonTheme("error primary");
@@ -129,10 +125,10 @@ public class MySubmissionsView extends VerticalLayout {
         dialog.open();
     }
 
-    private void withdraw(Submission submission) {
+    private void withdraw(SubmissionSummary submission) {
         UUID speakerId = securityUtils.getCurrentUserId().orElseThrow();
         try {
-            submissionService.withdraw(submission.getId(), speakerId);
+            submissionService.withdraw(submission.id(), speakerId);
             Notification.show("Propuesta retirada", 3000, Notification.Position.TOP_CENTER);
             refresh();
         } catch (Exception ex) {
@@ -143,7 +139,6 @@ public class MySubmissionsView extends VerticalLayout {
 
     private void refresh() {
         UUID speakerId = securityUtils.getCurrentUserId().orElseThrow();
-        List<Submission> submissions = submissionService.listBySpeaker(speakerId);
-        grid.setItems(submissions);
+        grid.setItems(submissionService.listBySpeakerSummaries(speakerId));
     }
 }

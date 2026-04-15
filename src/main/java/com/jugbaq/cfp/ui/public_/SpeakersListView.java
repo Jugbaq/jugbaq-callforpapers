@@ -1,7 +1,8 @@
 package com.jugbaq.cfp.ui.public_;
 
+import static com.jugbaq.cfp.shared.tenant.TenantRouteHelper.absoluteTenantPath;
+
 import com.jugbaq.cfp.submissions.SubmissionService;
-import com.jugbaq.cfp.submissions.domain.SubmissionStatus;
 import com.jugbaq.cfp.ui.layout.MainLayout;
 import com.jugbaq.cfp.users.SpeakerSummary;
 import com.jugbaq.cfp.users.UserQueryService;
@@ -16,7 +17,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -32,21 +33,16 @@ public class SpeakersListView extends VerticalLayout {
 
         add(new H1("Speakers"));
 
-        Set<UUID> speakerIds = new HashSet<>();
-        submissionService.listForReview(null, null).stream()
-                .filter(s -> s.getStatus() == SubmissionStatus.ACCEPTED || s.getStatus() == SubmissionStatus.CONFIRMED)
-                .forEach(s -> speakerIds.add(s.getSpeakerId()));
+        Set<UUID> speakerIds = submissionService.findAcceptedSpeakerIds();
 
         if (speakerIds.isEmpty()) {
             add(new Paragraph("Aún no hay speakers confirmados."));
             return;
         }
 
-        for (UUID id : speakerIds) {
-            SpeakerSummary speaker = userQueryService.getSpeakerInfo(id);
-            if (speaker != null) {
-                add(buildSpeakerCard(speaker));
-            }
+        List<SpeakerSummary> speakers = userQueryService.getSpeakersById(speakerIds);
+        for (SpeakerSummary speaker : speakers) {
+            add(buildSpeakerCard(speaker));
         }
     }
 
@@ -76,7 +72,7 @@ public class SpeakersListView extends VerticalLayout {
         // --- Info ---
         Div info = new Div();
 
-        Anchor nameLink = new Anchor("/t/jugbaq/speakers/" + speaker.id(), speaker.fullName());
+        Anchor nameLink = new Anchor(absoluteTenantPath("speakers/" + speaker.id()), speaker.fullName());
         nameLink.getStyle().set("text-decoration", "none").set("color", "var(--lumo-header-text-color)");
 
         H3 nameHeader = new H3(nameLink);

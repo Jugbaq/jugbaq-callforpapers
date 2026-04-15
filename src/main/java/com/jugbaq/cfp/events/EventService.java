@@ -36,6 +36,13 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
+    public List<EventSummary> listAllSummaries() {
+        return repository.findAllByOrderByEventDateDesc().stream()
+                .map(EventSummary::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<Event> listCfpOpen() {
         return repository.findByStatusOrderByEventDateDesc(EventStatus.CFP_OPEN).stream()
                 .filter(Event::isCfpOpen)
