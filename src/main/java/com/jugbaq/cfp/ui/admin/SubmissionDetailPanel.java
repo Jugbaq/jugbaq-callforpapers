@@ -47,11 +47,20 @@ class SubmissionDetailPanel extends Composite<VerticalLayout> {
         getContent().setPadding(true);
         getContent().setSpacing(true);
         getContent().setSizeFull();
+        showPlaceholder();
+    }
+
+    private void showPlaceholder() {
         getContent().add(new Paragraph("Selecciona una propuesta para ver el detalle."));
     }
 
     void setActionCallback(ReviewActionCallback callback) {
         this.actionCallback = callback;
+    }
+
+    void clear() {
+        getContent().removeAll();
+        showPlaceholder();
     }
 
     void showSubmission(SubmissionSummary submission) {

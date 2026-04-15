@@ -7,6 +7,7 @@ import com.jugbaq.cfp.TestcontainersConfiguration;
 import com.jugbaq.cfp.events.EventService;
 import com.jugbaq.cfp.events.domain.Event;
 import com.jugbaq.cfp.events.domain.EventStatus;
+import com.jugbaq.cfp.review.ReviewService;
 import com.jugbaq.cfp.shared.domain.TenantRepository;
 import com.jugbaq.cfp.shared.tenant.TenantContext;
 import com.jugbaq.cfp.submissions.domain.CfpClosedException;
@@ -52,6 +53,9 @@ class SubmissionServiceTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    ReviewService reviewService;
 
     private static final UUID ADMIN_ID = UUID.fromString("a0000000-0000-0000-0000-000000000001");
     private UUID speakerId;
@@ -238,12 +242,13 @@ class SubmissionServiceTest {
         Set<UUID> before = submissionService.findAcceptedSpeakerIds();
         assertThat(before).isEmpty();
 
-        // Create and accept a submission
+        // Create, submit, review and accept a submission via the proper domain flow
         SubmissionData data = buildData("Accepted Talk");
         Submission s = submissionService.createAndSubmit(openEvent.getId(), speakerId, data);
-        s = submissionService.findById(s.getId()).orElseThrow();
-        s.transitionTo(SubmissionStatus.UNDER_REVIEW);
-        s.transitionTo(SubmissionStatus.ACCEPTED);
+
+        // Submit a review score then accept — this persists the status change
+        reviewService.submitOrUpdateScore(s.getId(), ADMIN_ID, 5, "Good talk");
+        reviewService.accept(s.getId());
 
         Set<UUID> after = submissionService.findAcceptedSpeakerIds();
         assertThat(after).isNotEmpty();

@@ -46,7 +46,10 @@ public class AdminReviewsView extends VerticalLayout {
         this.eventService = eventService;
 
         this.detailPanel = new SubmissionDetailPanel(reviewService, userQueryService, securityUtils);
-        detailPanel.setActionCallback(this::refresh);
+        detailPanel.setActionCallback(() -> {
+            refresh();
+            detailPanel.clear();
+        });
 
         setSizeFull();
         setPadding(true);
@@ -100,7 +103,8 @@ public class AdminReviewsView extends VerticalLayout {
                 .setHeader("Promedio")
                 .setAutoWidth(true);
 
-        grid.addSelectionListener(e -> e.getFirstSelectedItem().ifPresent(detailPanel::showSubmission));
+        grid.addSelectionListener(
+                e -> e.getFirstSelectedItem().ifPresentOrElse(detailPanel::showSubmission, () -> detailPanel.clear()));
         grid.setSizeFull();
     }
 
@@ -117,6 +121,7 @@ public class AdminReviewsView extends VerticalLayout {
     }
 
     private void refresh() {
+        grid.deselectAll();
         UUID eventId = eventFilter.getValue() != null ? eventFilter.getValue().id() : null;
         SubmissionStatus status = statusFilter.getValue();
         grid.setItems(submissionService.listForReviewSummaries(eventId, status));

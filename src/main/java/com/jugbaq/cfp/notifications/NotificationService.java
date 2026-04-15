@@ -40,6 +40,7 @@ public class NotificationService {
     }
 
     public void create(UUID userId, UUID tenantId, NotificationType type, Map<String, Object> payload) {
-        repository.save(new Notification(userId, tenantId, type, payload));
+        Map<String, Object> safePayload = (payload == null) ? Map.of() : Map.copyOf(payload);
+        repository.save(new Notification(userId, tenantId, type, safePayload));
     }
 }

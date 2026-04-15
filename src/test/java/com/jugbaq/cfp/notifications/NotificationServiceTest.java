@@ -49,6 +49,35 @@ class NotificationServiceTest {
     }
 
     @Test
+    void should_create_notification_with_payload() {
+        Map<String, Object> payload = Map.of("key", "value");
+
+        notificationService.create(userId, tenantId, NotificationType.SUBMISSION_ACCEPTED, payload);
+
+        var notifications = notificationRepository.findAll();
+        assertThat(notifications).hasSize(1);
+
+        Notification saved = notifications.getFirst();
+        assertThat(saved).extracting("userId").isEqualTo(userId);
+        assertThat(saved).extracting("tenantId").isEqualTo(tenantId);
+        assertThat(saved).extracting("type").isEqualTo(NotificationType.SUBMISSION_ACCEPTED);
+        assertThat(saved).extracting("payload").isEqualTo(payload);
+    }
+
+    @Test
+    void should_create_notification_with_null_payload() {
+        notificationService.create(userId, tenantId, NotificationType.SUBMISSION_ACCEPTED, null);
+
+        var notifications = notificationRepository.findAll();
+        assertThat(notifications).hasSize(1);
+
+        Notification saved = notifications.getFirst();
+        assertThat(saved).extracting("userId").isEqualTo(userId);
+        assertThat(saved).extracting("type").isEqualTo(NotificationType.SUBMISSION_ACCEPTED);
+        assertThat(saved).extracting("payload").isEqualTo(Map.of());
+    }
+
+    @Test
     void should_list_notifications_for_user() {
         Notification notif =
                 new Notification(userId, tenantId, NotificationType.SUBMISSION_ACCEPTED, Map.of("title", "Test"));

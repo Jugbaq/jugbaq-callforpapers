@@ -101,7 +101,7 @@ SonarQube dashboard: http://localhost:9000
 
 ## Project Structure
 
-```
+```plaintext
 jugbaq-callforpapers/
 ├── src/main/java/com/jugbaq/cfp/
 │   ├── events/          # Event management module
@@ -156,5 +156,5 @@ Licensed under the [Apache 2.0 License](LICENSE).
 ## Contact
 
 JUGBAQ - Java User Group Barranquilla
-🔗 [WebSite:](https://jugbaq.org/)
+🔗 [Website](https://jugbaq.org/)
 
