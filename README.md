@@ -156,5 +156,5 @@ Licensed under the [Apache 2.0 License](LICENSE).
 ## Contact
 
 JUGBAQ - Java User Group Barranquilla
-🔗 [Website](https://jugbaq.org/)
+🔗 [Website](https://barranquillajug.org/)
 
